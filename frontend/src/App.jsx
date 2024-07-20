@@ -3,7 +3,7 @@ import './App.css'
 function App() {
   return (
     <>
-    <h1 style="color: yellowgreen;">LIFE MATTERS</h1>
+    <h1>LIFE MATTERS</h1>
     </>
   )
 }
