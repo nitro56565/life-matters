@@ -9,7 +9,7 @@ Life Matters is a Ambulance tracking system which helps the ambulance drivers ge
 - Enable real-time tracking of ambulance routes.
 - Automatically control traffic lights to prioritize ambulance movement.
 
-## Tech Stack
+## Techology Stack
 
 ### Frontend
 
