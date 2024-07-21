@@ -1,9 +1,9 @@
 import './App.css'
-
+import LandingPage from './pages/LandingPage'
 function App() {
   return (
     <>
-    <h1>LIFE MATTERS</h1>
+    <LandingPage/>
     </>
   )
 }
