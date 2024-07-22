@@ -13,7 +13,7 @@ function LandingPage() {
   // }, [history]);
   return (
     <div className="sm:flex justify-center items-center h-screen animate-pulse">
-      <img src="../../public/images/life-matters-logo-t-nnm.png" alt="Logo" />
+      <img src="/images/life-matters-logo-t-nnm.png" alt="Logo" />
     </div>
   )
 }
