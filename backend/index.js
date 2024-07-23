@@ -5,7 +5,7 @@ const cors = require("cors");
 
 app.use(express.json());
 
-app.get("life-matters.vercel.app/", (req, res) => res.send("Express on Vercel"));
+app.get("/", (req, res) => res.send("Express on Vercel"));
 app.use(cors(
   {
     origin: ["https://life-matters.vercel.app"],
