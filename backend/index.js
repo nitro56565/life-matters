@@ -1,18 +1,17 @@
-const express = require("express");
-const { connection } = require("./data");
+import express from 'express';
+import cors from 'cors';
+import { connection } from './data.js';
+
 const app = express();
-const cors = require("cors");
 
 app.use(express.json());
+app.use(cors({
+  origin: ["https://life-matters.vercel.app"],
+  methods: ["GET", "POST"],
+  credentials: true,
+}));
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
-app.use(cors(
-  {
-    origin: ["https://life-matters.vercel.app"],
-    methods: ["GET", "POST"],
-    credentials: true,
-  }
-));
 
 app.get("/user", (req, res) => {
   res.send("life matters");
