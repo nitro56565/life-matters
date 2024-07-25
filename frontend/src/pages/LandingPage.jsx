@@ -1,18 +1,16 @@
 import React,{useEffect} from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function LandingPage() {
-  // const history = useHistory();
+  const navigate = useNavigate()
 
-  // useEffect(() => {
-  //   // Example of navigating to a new route after 2 seconds
-  //   const timeoutId = setTimeout(() => {
-  //     history.push('/home'); // Replace '/dashboard' with your desired route
-  //   }, 2000);
-
-  //   return () => clearTimeout(timeoutId); // Cleanup the timeout
-  // }, [history]);
+  useEffect(() => {
+    setTimeout(() => {
+      navigate('/home')
+    }, 2000)
+  }, [])
   return (
-    <div className="sm:flex justify-center items-center h-screen animate-pulse">
+    <div className="flex justify-center items-center h-screen animate-pulse">
       <img src="/images/life-matters-logo-t-nnm.png" alt="Logo" />
     </div>
   )
