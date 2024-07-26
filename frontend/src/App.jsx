@@ -20,6 +20,7 @@ function App() {
         <Route path='/trafficpolicesignin' element={<TrafficPoliceSignIn/>}/>
         <Route path='/trafficpolicesignup' element={<TrafficPoliceSignUp/>}/>
         <Route path='/ambulance' element={<Ambulance/>}/>
+        <Route path='/traffic-police' element={<TrafficPolice/>}/>
       </Routes>
     </StrictMode>
   )
