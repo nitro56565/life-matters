@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 
-function SignIn() {
+function SignIn ({redirectUrl}){
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <div className="flex justify-center items-center min-h-screen font-poppins">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
         <div className="flex items-center mb-6">
           <h1 className="text-2xl items-center font-semibold ml-4">Sign In</h1>
         </div>
         <div className="mb-4">
           <input
-            type="email"
-            placeholder="Enter your email"
+            type="phone"
+            placeholder="Enter your phone number"
             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
           />
         </div>
@@ -37,7 +37,7 @@ function SignIn() {
         </button>
         <p className="text-center mb-6">
           Don’t have an account?{' '}
-          <a href="#sign-up" className="text-[#7326F1] hover:underline">
+          <a href={redirectUrl} className="text-[#7326F1] hover:underline">
             Sign up
           </a>
         </p>

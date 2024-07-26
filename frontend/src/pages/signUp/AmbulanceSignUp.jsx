@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
-function SignUp() {
+function AmbulanceSignUp() {
   const [formData, setFormData] = useState({
     Name: "",
     HospitalName: "",
     AmbulanceVehicleNo: "",
     Phone: "",
-    Email: "",
     password: "",
   });
   const handleChange = (e) => {
@@ -24,13 +24,19 @@ function SignUp() {
       hospitalName: "",
       ambulanceVehicleNo: "",
       phone: "",
-      email: "",
       password: "",
     });
   };
+  // const history = useHistory();
+
+  // const redirectToSignIn = () => {
+  //   history.push('/signin');
+  // };
+  const navigateTo = useNavigate();
+
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
+    <div className="flex justify-center items-center min-h-screen font-poppins">
+      <div className=" bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
         <div className="flex items-center mb-6">
           <h1 className="text-2xl items-center font-semibold ml-4">Sign Up</h1>
         </div>
@@ -62,7 +68,7 @@ function SignUp() {
             <input
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="text"
-              name="HospitalName"
+              name="AmbulanceVehicleNo"
               value={formData.ambulanceVehicleNo}
               onChange={handleChange}
             />
@@ -73,18 +79,7 @@ function SignUp() {
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="number"
               name="Phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label>Email:</label>
-            <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
-              type="email"
-              name="email"
-              value={formData.email}
+              value={formData.Phone}
               onChange={handleChange}
               required
             />
@@ -100,16 +95,17 @@ function SignUp() {
               required
             />
           </div>
-          <button className="w-full bg-[#7326F1] text-white py-3 rounded-lg mb-6 ">
+          <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
           Sign Up
         </button> 
-        <button className="w-full bg-[#7326F1] text-white py-3 rounded-lg mb-6 ">
-          Sign In
-        </button>         
+              
         </form>
+        <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 " onClick={() => navigateTo('/ambulancesignin')}
+        >Sign In
+        </button> 
       </div>
     </div>
   );
 }
 
-export default SignUp;
+export default AmbulanceSignUp;
