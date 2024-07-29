@@ -1,11 +1,9 @@
-import React from 'react'
-import SignIn from '../../components/SignIn'
+import React from "react";
+import SignIn from "../../components/SignIn";
 
 const TrafficPoliceSignIn = () => {
-    const signInRedirect = "/trafficpolicesignup";
-  return (
-    <SignIn redirectUrl={signInRedirect}/>
-  )
-}
+  const signInRedirect = "/trafficpolicesignup";
+  return <SignIn redirectUrl={signInRedirect} />;
+};
 
-export default TrafficPoliceSignIn
+export default TrafficPoliceSignIn;

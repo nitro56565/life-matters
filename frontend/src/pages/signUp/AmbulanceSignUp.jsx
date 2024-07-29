@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 function AmbulanceSignUp() {
   const [formData, setFormData] = useState({
@@ -36,15 +36,15 @@ function AmbulanceSignUp() {
 
   return (
     <div className="flex justify-center items-center min-h-screen font-poppins">
-      <div className=" bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-        <div className="flex items-center mb-6">
+      <div className="sm: bg-white p-8 rounded-lg shadow-lg  ">
+        <div className="flex items-center mb-4">
           <h1 className="text-2xl items-center font-semibold ml-4">Sign Up</h1>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label>Name:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="text"
               name="Name"
               value={formData.name}
@@ -55,7 +55,7 @@ function AmbulanceSignUp() {
           <div className="mb-4">
             <label>Hospital Name:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="text"
               name="HospitalName"
               value={formData.hospitalName}
@@ -66,7 +66,7 @@ function AmbulanceSignUp() {
           <div className="mb-4">
             <label>Ambulace Vehicle Number:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="text"
               name="AmbulanceVehicleNo"
               value={formData.ambulanceVehicleNo}
@@ -76,7 +76,7 @@ function AmbulanceSignUp() {
           <div className="mb-4">
             <label>Phone:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="number"
               name="Phone"
               value={formData.Phone}
@@ -87,7 +87,7 @@ function AmbulanceSignUp() {
           <div className="mb-4 relative">
             <label>Password:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="password"
               name="password"
               value={formData.password}
@@ -96,13 +96,15 @@ function AmbulanceSignUp() {
             />
           </div>
           <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
-          Sign Up
-        </button> 
-              
+            Sign Up
+          </button>
         </form>
-        <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 " onClick={() => navigateTo('/ambulancesignin')}
-        >Sign In
-        </button> 
+        <button
+          className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 "
+          onClick={() => navigateTo("/ambulancesignin")}
+        >
+          Sign In
+        </button>
       </div>
     </div>
   );
