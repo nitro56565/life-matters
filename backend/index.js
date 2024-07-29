@@ -1,6 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import { connection } from './data.js';
+import TrafficSignal from './models/TrafficSignal.js'; // Import the model
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+
+dotenv.config();
 
 const app = express();
 
@@ -17,11 +22,36 @@ app.get("/user", (req, res) => {
   res.send("life matters");
 });
 
-app.listen(8083, () => {
+app.get("/api/traffic-signal", async (req, res) => {
+  try {
+    const trafficSignals = await TrafficSignal.find().lean();
+    const transformedSignals = trafficSignals.map(signal => {
+      return {
+        ...signal,
+        id: signal.id.valueOf(),
+        lat: signal.lat.valueOf(),
+        lon: signal.lon.valueOf(),
+        tags: {
+          ...signal.tags,
+        },
+      };
+    });
+    res.json(transformedSignals);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+app.listen(process.env.PORT || 8083, () => {
   connection
     .then(() => {
-      console.log("db is connected....");
-      console.log("server is listening on port 8083....");
+      const db = mongoose.connection;
+      db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+      db.once('open', () => {
+        console.log('Connected to MongoDB');
+      });
+      console.log(`Server is listening on port http://localhost:${process.env.PORT || 8083}`);
     })
     .catch((error) => {
       console.error("Failed to connect to the database:", error);
