@@ -1,41 +1,40 @@
-import React,{useState} from 'react'
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TrafficPoliceSignUp = () => {
   const navigateTo = useNavigate();
-    const[formData,setFormData]=useState({
-      Name:'',
-      Location:'',
-      contact:'',
-      Password:''
-    })
-    const handleChange=(e)=>{
-      const{name,value}=e.target;
-      setFormData((prevState)=>({
-        ...prevState,
-        [name]:value,
-      }))
-    }
-    const handleSubmit=(e)=>{
-      e.preventDefault();
-      console.log(formData);
-      setFormData({
-        name:'',
-        location:'',
-        contact:'',
-        Password:'',
-      })
-    }
-    // const history = useHistory();
+  const [formData, setFormData] = useState({
+    Name: "",
+    Location: "",
+    contact: "",
+    Password: "",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(formData);
+    setFormData({
+      name: "",
+      location: "",
+      contact: "",
+      Password: "",
+    });
+  };
+  // const history = useHistory();
 
-    // const redirectToSignIn = () => {
-    //   history.push('/signin');
-    // };
-  
-  
+  // const redirectToSignIn = () => {
+  //   history.push('/signin');
+  // };
+
   return (
     <div className="flex justify-center items-center min-h-screen font-poppins">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
+      <div className="sm:bg-white p-8 rounded-lg ">
         <div className="flex items-center mb-6">
           <h1 className="text-2xl items-center font-semibold ml-4">Sign Up</h1>
         </div>
@@ -43,7 +42,7 @@ const TrafficPoliceSignUp = () => {
           <div className="mb-4">
             <label>Name:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="text"
               name="Name"
               value={formData.name}
@@ -54,7 +53,7 @@ const TrafficPoliceSignUp = () => {
           <div className="mb-4">
             <label>Location:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1] font-poppins"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1] font-poppins"
               type="text"
               name="HospitalName"
               value={formData.location}
@@ -65,7 +64,7 @@ const TrafficPoliceSignUp = () => {
           <div className="mb-4">
             <label>Contact Number:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="text"
               name="HospitalName"
               value={formData.contact}
@@ -75,7 +74,7 @@ const TrafficPoliceSignUp = () => {
           <div className="mb-4 relative">
             <label>Password:</label>
             <input
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               type="password"
               name="password"
               value={formData.password}
@@ -84,15 +83,18 @@ const TrafficPoliceSignUp = () => {
             />
           </div>
           <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
-          Sign Up
-        </button> 
-        <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 "onClick={() => navigateTo('/trafficpolicesignin')} >
-          Sign In
-        </button>         
+            Sign Up
+          </button>
+          <button
+            className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 "
+            onClick={() => navigateTo("/trafficpolicesignin")}
+          >
+            Sign In
+          </button>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TrafficPoliceSignUp
+export default TrafficPoliceSignUp;
