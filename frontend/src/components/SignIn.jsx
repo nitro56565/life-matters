@@ -7,7 +7,7 @@ function SignIn ({redirectUrl}){
     setShowPassword(!showPassword);
   };
   return (
-    <div className="sm:flex justify-center items-center min-h-screen font-poppins">
+    <div className="flex justify-center items-center min-h-screen font-poppins">
       <div className="sm:bg-white p-8 rounded-lg shadow-lg">
         <div className="flex items-center mb-4">
           <h1 className="text-2xl items-center font-semibold ml-4">Sign In</h1>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 function HomePage() {
   const navigate = useNavigate();
   return (
-    <div className=" flex flex-col items-center h-screen">
+    <div className=" flex flex-col items-center h-vh">
       <div className="flex items-center">
         <img
           className="max-w-md"
