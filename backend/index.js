@@ -43,6 +43,13 @@ app.get("/api/traffic-signal", async (req, res) => {
 
 const PORT = process.env.PORT || 8083;
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port http://localhost:${PORT}`);
-});
+connection
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is listening on port http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to connect to the database:", error);
+    process.exit(1);
+  });
