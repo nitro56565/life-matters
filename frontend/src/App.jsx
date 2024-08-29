@@ -8,6 +8,7 @@ import AmbulanceSignIn from './pages/siginIn/AmbulanceSignIn'
 import TrafficPoliceSignIn from './pages/siginIn/TrafficPoliceSignIn'
 import AmbulanceSignUp from './pages/signUp/AmbulanceSignUp'
 import TrafficPolice from './pages/TrafficPolice'
+import AmbulanceMainPage from './pages/ambulance-main-page/AmbulanceMainPage'
 function App() {
   return (
       <Routes>
@@ -19,6 +20,7 @@ function App() {
         <Route path='/trafficpolicesignup' element={<TrafficPoliceSignUp/>}/>
         <Route path='/ambulance' element={<Ambulance/>}/>
         <Route path='/traffic-police' element={<TrafficPolice/>}/>
+        <Route path='/ambulance-home' element={<AmbulanceMainPage/>}/>
       </Routes>
   )
 }
