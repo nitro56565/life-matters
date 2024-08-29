@@ -1,16 +1,19 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const TrafficSignalSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
-  lat: { type: Number, required: true },
-  lon: { type: Number, required: true },
-  tags: {
-    highway: { type: String, required: true },
-    junction: { type: String },
-    name: { type: String },
-  }
-}, { collection: 'traffic_signals' });
+const elementSchema = new mongoose.Schema({
+  type: String,
+  id: Number,
+  lat: Number,
+  lon: Number,
+  tags: Object,
+});
 
-const TrafficSignal = mongoose.model('TrafficSignal', TrafficSignalSchema);
+const trafficSignalSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  version: String,
+  generator: String,
+  osm3s: Object,
+  elements: [elementSchema],
+});
 
-export default TrafficSignal;
+export const TrafficSignal = mongoose.model('TrafficSignal', trafficSignalSchema, 'pune-traffic-signals');

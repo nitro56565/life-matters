@@ -1,9 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { connection } from './data.js';
-import TrafficSignal from './models/TrafficSignal.js'; // Import the model
+import { TrafficSignal } from './models/TrafficSignal.js';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -24,42 +23,26 @@ app.get("/user", (req, res) => {
 
 app.get("/api/traffic-signal", async (req, res) => {
   try {
-    const trafficSignals = await TrafficSignal.find().lean();
-    const transformedSignals = trafficSignals.map(signal => {
-      return {
-        ...signal,
-        id: signal.id.valueOf(),
-        lat: signal.lat.valueOf(),
-        lon: signal.lon.valueOf(),
-        tags: {
-          ...signal.tags,
-        },
-      };
-    });
-    res.json(transformedSignals);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const trafficSignal = await TrafficSignal.findOne();
+    
+    if (trafficSignal && trafficSignal.elements) {
+      const results = trafficSignal.elements.map(element => ({
+        id: element.id,
+        lat: element.lat,
+        lon: element.lon
+      }));
+      res.json(results);
+    } else {
+      res.status(404).json({ message: 'No traffic signal data found' });
+    }
+  } catch (error) {
+    console.error('Error fetching traffic signals:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
+const PORT = process.env.PORT || 8083;
 
-app.listen(process.env.PORT || 8083, () => {
-  connection
-    .then(() => {
-      const db = mongoose.connection;
-      db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-      db.once('open', () => {
-        console.log('Connected to MongoDB');
-      });
-      console.log(`Server is listening on port http://localhost:${process.env.PORT || 8083}`);
-    })
-    .catch((error) => {
-      console.error("Failed to connect to the database:", error);
-      process.exit(1);
-    });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something went wrong!");
+app.listen(PORT, () => {
+  console.log(`Server is listening on port http://localhost:${PORT}`);
 });
