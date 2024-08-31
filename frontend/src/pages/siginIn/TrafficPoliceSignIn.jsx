@@ -6,4 +6,4 @@ const TrafficPoliceSignIn = () => {
   return <SignIn redirectUrl={signInRedirect} />;
 };
 
-export default TrafficPoliceSignIn;
+export default TrafficPoliceSignIn
