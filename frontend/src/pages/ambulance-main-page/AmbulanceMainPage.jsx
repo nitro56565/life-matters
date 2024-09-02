@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  Autocomplete,
-} from "@react-google-maps/api";
+import { GoogleMap, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+// Define the libraries as a static constant
+const libraries = ["places"];
 
 const containerStyle = {
   width: '100%',
@@ -20,8 +18,6 @@ const center = {
 
 const AmbulanceMainPage = () => {
   const [map, setMap] = useState(null);
-  const [source, setSource] = useState("");
-  const [destination, setDestination] = useState("");
   const [sourceLatLng, setSourceLatLng] = useState(null);
   const [destinationLatLng, setDestinationLatLng] = useState(null);
 
@@ -30,9 +26,17 @@ const AmbulanceMainPage = () => {
   const directionsServiceRef = useRef(null);
   const directionsRendererRef = useRef(null);
 
-  const handlePlaceChange = (place, setLatLng) => {
-    const location = place.geometry.location;
-    setLatLng({ lat: location.lat(), lng: location.lng() });
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  const handlePlaceChange = (ref, setLatLng) => {
+    const place = ref.current.getPlace();
+    if (place.geometry) {
+      const location = place.geometry.location;
+      setLatLng({ lat: location.lat(), lng: location.lng() });
+    }
   };
 
   const handleRoute = () => {
@@ -62,71 +66,105 @@ const AmbulanceMainPage = () => {
     }
   }, [map]);
 
+  // Initialize and set markers
+  useEffect(() => {
+    if (map && sourceLatLng) {
+      const AdvancedMarkerElement = google.maps.marker?.AdvancedMarkerElement;
+
+      if (AdvancedMarkerElement) {
+        new AdvancedMarkerElement({
+          map,
+          position: sourceLatLng,
+          title: "Source",
+        });
+      } else {
+        // Fallback to traditional Marker if AdvancedMarkerElement is not available
+        new google.maps.Marker({
+          map,
+          position: sourceLatLng,
+          title: "Source",
+        });
+      }
+    }
+
+    if (map && destinationLatLng) {
+      const AdvancedMarkerElement = google.maps.marker?.AdvancedMarkerElement;
+
+      if (AdvancedMarkerElement) {
+        new AdvancedMarkerElement({
+          map,
+          position: destinationLatLng,
+          title: "Destination",
+        });
+      } else {
+        // Fallback to traditional Marker if AdvancedMarkerElement is not available
+        new google.maps.Marker({
+          map,
+          position: destinationLatLng,
+          title: "Destination",
+        });
+      }
+    }
+  }, [map, sourceLatLng, destinationLatLng]);
+
+  if (loadError) {
+    return <div>Error loading Google Maps API</div>;
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+      </div>
+    );
+  }
+
   return (
-    <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={["places"]}>
-      <div className="container mx-auto p-4">
-        <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
-          Ambulance Portal
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
-          <div>
-            <Autocomplete
-              onLoad={(autocomplete) => (sourceRef.current = autocomplete)}
-              onPlaceChanged={() => {
-                const place = sourceRef.current.getPlace();
-                handlePlaceChange(place, setSourceLatLng);
-                setSource(place.formatted_address);
-              }}
-            >
-              <input
-                type="text"
-                placeholder="Enter source"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                className="w-full p-1 border border-gray-300 rounded font-poppins"
-              />
-            </Autocomplete>
-          </div>
-          <div>
-            <Autocomplete
-              onLoad={(autocomplete) => (destinationRef.current = autocomplete)}
-              onPlaceChanged={() => {
-                const place = destinationRef.current.getPlace();
-                handlePlaceChange(place, setDestinationLatLng);
-                setDestination(place.formatted_address);
-              }}
-            >
-              <input
-                type="text"
-                placeholder="Enter destination"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="w-full p-1 border border-gray-300 rounded font-poppins"
-              />
-            </Autocomplete>
-          </div>
-        </div>
-        <button
-          onClick={handleRoute}
-          className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
-        >
-          Show Route
-        </button>
-        <div className="border border-gray-300 rounded mt-6">
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={10}
-            onLoad={(mapInstance) => setMap(mapInstance)}
+    <div className="container mx-auto p-4">
+      <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
+        Ambulance Portal
+      </h1>
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+        <div>
+          <Autocomplete
+            onLoad={(autocomplete) => (sourceRef.current = autocomplete)}
+            onPlaceChanged={() => handlePlaceChange(sourceRef, setSourceLatLng)}
           >
-            {sourceLatLng && <Marker position={sourceLatLng} label="Source" />}
-            {destinationLatLng && (
-              <Marker position={destinationLatLng} label="Destination" />
-            )}
-          </GoogleMap>
+            <input
+              type="text"
+              placeholder="Enter source"
+              className="w-full p-1 border border-gray-300 rounded font-poppins"
+            />
+          </Autocomplete>
+        </div>
+        <div>
+          <Autocomplete
+            onLoad={(autocomplete) => (destinationRef.current = autocomplete)}
+            onPlaceChanged={() => handlePlaceChange(destinationRef, setDestinationLatLng)}
+          >
+            <input
+              type="text"
+              placeholder="Enter destination"
+              className="w-full p-1 border border-gray-300 rounded font-poppins"
+            />
+          </Autocomplete>
         </div>
       </div>
-    </LoadScript>
+      <button
+        onClick={handleRoute}
+        className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
+      >
+        Show Route
+      </button>
+      <div className="border border-gray-300 rounded mt-6">
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={10}
+          onLoad={(mapInstance) => setMap(mapInstance)}
+        />
+      </div>
+    </div>
   );
 };
 
