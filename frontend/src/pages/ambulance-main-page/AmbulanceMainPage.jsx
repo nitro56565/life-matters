@@ -3,7 +3,6 @@ import { GoogleMap, Autocomplete, useJsApiLoader } from "@react-google-maps/api"
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Define the libraries as a static constant
 const libraries = ["places"];
 
 const containerStyle = {
@@ -20,22 +19,47 @@ const AmbulanceMainPage = () => {
   const [map, setMap] = useState(null);
   const [sourceLatLng, setSourceLatLng] = useState(null);
   const [destinationLatLng, setDestinationLatLng] = useState(null);
-
+  const [sourceInput, setSourceInput] = useState("");  
+  const [destinationInput, setDestinationInput] = useState("");
   const sourceRef = useRef(null);
   const destinationRef = useRef(null);
   const directionsServiceRef = useRef(null);
   const directionsRendererRef = useRef(null);
+  const sourceMarkerRef = useRef(null);
+  const destinationMarkerRef = useRef(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
 
-  const handlePlaceChange = (ref, setLatLng) => {
+  const isLatLngFormat = (input) => {
+    const latLngPattern = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+    return latLngPattern.test(input);
+  };
+
+  const parseLatLng = (input) => {
+    if (isLatLngFormat(input)) {
+      const [lat, lng] = input.split(',').map(Number);
+      return new google.maps.LatLng(lat, lng);
+    }
+    return null;
+  };
+
+  const handlePlaceChange = (ref, setLatLng, setInput) => {
     const place = ref.current.getPlace();
     if (place.geometry) {
       const location = place.geometry.location;
-      setLatLng({ lat: location.lat(), lng: location.lng() });
+      setLatLng(location);  // Directly using Google Maps LatLng object
+      setInput(place.formatted_address || `${location.lat()},${location.lng()}`);
+    }
+  };
+
+  const handleInputChange = (input, setLatLng, setInput) => {
+    setInput(input);
+    const latLng = parseLatLng(input);
+    if (latLng) {
+      setLatLng(latLng);  // Set as LatLng object if valid
     }
   };
 
@@ -66,44 +90,28 @@ const AmbulanceMainPage = () => {
     }
   }, [map]);
 
-  // Initialize and set markers
   useEffect(() => {
-    if (map && sourceLatLng) {
-      const AdvancedMarkerElement = google.maps.marker?.AdvancedMarkerElement;
+    if (sourceMarkerRef.current) {
+      sourceMarkerRef.current.setMap(null);
+    }
+    if (destinationMarkerRef.current) {
+      destinationMarkerRef.current.setMap(null);
+    }
 
-      if (AdvancedMarkerElement) {
-        new AdvancedMarkerElement({
-          map,
-          position: sourceLatLng,
-          title: "Source",
-        });
-      } else {
-        // Fallback to traditional Marker if AdvancedMarkerElement is not available
-        new google.maps.Marker({
-          map,
-          position: sourceLatLng,
-          title: "Source",
-        });
-      }
+    if (map && sourceLatLng) {
+      sourceMarkerRef.current = new google.maps.Marker({
+        map,
+        position: sourceLatLng,
+        title: "Source",
+      });
     }
 
     if (map && destinationLatLng) {
-      const AdvancedMarkerElement = google.maps.marker?.AdvancedMarkerElement;
-
-      if (AdvancedMarkerElement) {
-        new AdvancedMarkerElement({
-          map,
-          position: destinationLatLng,
-          title: "Destination",
-        });
-      } else {
-        // Fallback to traditional Marker if AdvancedMarkerElement is not available
-        new google.maps.Marker({
-          map,
-          position: destinationLatLng,
-          title: "Destination",
-        });
-      }
+      destinationMarkerRef.current = new google.maps.Marker({
+        map,
+        position: destinationLatLng,
+        title: "Destination",
+      });
     }
   }, [map, sourceLatLng, destinationLatLng]);
 
@@ -119,6 +127,22 @@ const AmbulanceMainPage = () => {
     );
   }
 
+  const gotLocation = (userLocation) => {
+    console.log("User Location is ", userLocation);
+    const locationStr = `${userLocation.coords.latitude},${userLocation.coords.longitude}`;
+    const latLng = new google.maps.LatLng(userLocation.coords.latitude, userLocation.coords.longitude);
+    setSourceInput(locationStr);
+    setSourceLatLng(latLng);
+  };
+
+  const errorLocation = () => {
+    console.log("Some Error while getting user location");
+  };
+
+  const currentLocation = () => {
+    navigator.geolocation.getCurrentPosition(gotLocation, errorLocation);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
@@ -128,11 +152,13 @@ const AmbulanceMainPage = () => {
         <div>
           <Autocomplete
             onLoad={(autocomplete) => (sourceRef.current = autocomplete)}
-            onPlaceChanged={() => handlePlaceChange(sourceRef, setSourceLatLng)}
+            onPlaceChanged={() => handlePlaceChange(sourceRef, setSourceLatLng, setSourceInput)}
           >
             <input
               type="text"
               placeholder="Enter source"
+              value={sourceInput}  
+              onChange={(e) => handleInputChange(e.target.value, setSourceLatLng, setSourceInput)}
               className="w-full p-1 border border-gray-300 rounded font-poppins"
             />
           </Autocomplete>
@@ -140,22 +166,32 @@ const AmbulanceMainPage = () => {
         <div>
           <Autocomplete
             onLoad={(autocomplete) => (destinationRef.current = autocomplete)}
-            onPlaceChanged={() => handlePlaceChange(destinationRef, setDestinationLatLng)}
+            onPlaceChanged={() => handlePlaceChange(destinationRef, setDestinationLatLng, setDestinationInput)}
           >
             <input
               type="text"
               placeholder="Enter destination"
+              value={destinationInput}  
+              onChange={(e) => handleInputChange(e.target.value, setDestinationLatLng, setDestinationInput)}
               className="w-full p-1 border border-gray-300 rounded font-poppins"
             />
           </Autocomplete>
         </div>
       </div>
-      <button
-        onClick={handleRoute}
-        className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
-      >
-        Show Route
-      </button>
+      <div className="flex gap-2">
+        <div className="cursor-pointer" onClick={currentLocation}>
+          <img className="w-20" src="https://www.svgrepo.com/show/333873/current-location.svg" alt="Current Location" /> 
+        </div>
+        <button
+          onClick={handleRoute}
+          className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
+        >
+          Show Route
+        </button>
+        <button className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins">
+          Start
+        </button>
+      </div>
       <div className="border border-gray-300 rounded mt-6">
         <GoogleMap
           mapContainerStyle={containerStyle}
