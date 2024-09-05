@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { GoogleMap, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, Autocomplete, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -19,10 +19,13 @@ const AmbulanceMainPage = () => {
   const [map, setMap] = useState(null);
   const [sourceLatLng, setSourceLatLng] = useState(null);
   const [destinationLatLng, setDestinationLatLng] = useState(null);
-  const [sourceInput, setSourceInput] = useState("");  
+  const [sourceInput, setSourceInput] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
-  const sourceRef = useRef(null);
-  const destinationRef = useRef(null);
+  const [distance, setDistance] = useState("")
+  const [duration, setDuration] = useState("")
+  const [directionResponse, setDirectionResponse] = useState(null)
+  const sourceRef = useRef();
+  const destinationRef = useRef();
   const directionsServiceRef = useRef(null);
   const directionsRendererRef = useRef(null);
   const sourceMarkerRef = useRef(null);
@@ -74,6 +77,10 @@ const AmbulanceMainPage = () => {
         (result, status) => {
           if (status === 'OK') {
             directionsRendererRef.current.setDirections(result);
+            console.log(result);
+            setDirectionResponse(result)
+            setDistance(result.routes[0].legs[0].distance.text)
+            setDuration(result.routes[0].legs[0].duration.text)
           } else {
             console.error(`Directions request failed due to ${status}`);
           }
@@ -145,10 +152,10 @@ const AmbulanceMainPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
+      <h1 className="text-xl font-bold text-center mb-4 font-poppins text-[#7326F1]">
         Ambulance Portal
       </h1>
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
         <div>
           <Autocomplete
             onLoad={(autocomplete) => (sourceRef.current = autocomplete)}
@@ -157,9 +164,10 @@ const AmbulanceMainPage = () => {
             <input
               type="text"
               placeholder="Enter source"
-              value={sourceInput}  
+              value={sourceInput}
               onChange={(e) => handleInputChange(e.target.value, setSourceLatLng, setSourceInput)}
               className="w-full p-1 border border-gray-300 rounded font-poppins"
+              ref={sourceRef}
             />
           </Autocomplete>
         </div>
@@ -171,16 +179,21 @@ const AmbulanceMainPage = () => {
             <input
               type="text"
               placeholder="Enter destination"
-              value={destinationInput}  
+              value={destinationInput}
               onChange={(e) => handleInputChange(e.target.value, setDestinationLatLng, setDestinationInput)}
               className="w-full p-1 border border-gray-300 rounded font-poppins"
+              ref={destinationRef}
             />
           </Autocomplete>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex justify-normal gap-10 mb-3 font-poppins">
+        <p>Duration:{duration}</p>
+        <p>Distance:{distance}</p>
+      </div>
+      <div className="flex gap-2 justify-center items-center">
         <div className="cursor-pointer" onClick={currentLocation}>
-          <img className="w-20" src="https://www.svgrepo.com/show/333873/current-location.svg" alt="Current Location" /> 
+          <img className="w-20" src="https://www.svgrepo.com/show/333873/current-location.svg" alt="Current Location" />
         </div>
         <button
           onClick={handleRoute}
@@ -198,7 +211,9 @@ const AmbulanceMainPage = () => {
           center={center}
           zoom={10}
           onLoad={(mapInstance) => setMap(mapInstance)}
-        />
+        >
+          {directionResponse && <DirectionsRenderer directions={directionResponse} />}
+        </GoogleMap>
       </div>
     </div>
   );
