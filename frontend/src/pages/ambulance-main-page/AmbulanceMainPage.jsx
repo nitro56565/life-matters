@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GoogleMap, Autocomplete, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
-
+import { FaTimes } from "react-icons/fa";
+import currentlocationImg  from "../../../public/images/current-location-icon.svg";
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const libraries = ["places"];
@@ -88,6 +89,14 @@ const AmbulanceMainPage = () => {
       );
     }
   };
+  
+  const clearRoute=()=>{
+    setDirectionResponse(null)
+    setDistance(null)
+    SetDuration(null)
+    sourceRef.current.value=''
+    destinationRef.current.value=''
+  }
 
   useEffect(() => {
     if (map) {
@@ -152,7 +161,7 @@ const AmbulanceMainPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-xl font-bold text-center mb-4 font-poppins text-[#7326F1]">
+      <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
         Ambulance Portal
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
@@ -187,14 +196,13 @@ const AmbulanceMainPage = () => {
           </Autocomplete>
         </div>
       </div>
-      <div className="flex justify-normal gap-10 mb-3 font-poppins">
+      <div className="flex justify-between gap-10 mb-3 font-poppins">
         <p>Duration:{duration}</p>
         <p>Distance:{distance}</p>
+        <button onClick={clearRoute}> <FaTimes/></button>
       </div>
       <div className="flex gap-2 justify-center items-center">
-        <div className="cursor-pointer" onClick={currentLocation}>
-          <img className="w-20" src="https://www.svgrepo.com/show/333873/current-location.svg" alt="Current Location" />
-        </div>
+          <img src={currentlocationImg} className=" cursor-pointer w-10 h-10"  alt="" onClick={currentLocation}/>
         <button
           onClick={handleRoute}
           className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
