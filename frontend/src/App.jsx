@@ -9,8 +9,14 @@ import TrafficPoliceSignIn from './pages/siginIn/TrafficPoliceSignIn'
 import AmbulanceSignUp from './pages/signUp/AmbulanceSignUp'
 import TrafficPolice from './pages/TrafficPolice'
 import AmbulanceMainPage from './pages/ambulance-main-page/AmbulanceMainPage'
-import Analytics from "@vercel/analytics/react"
+import { Analytics } from '@vercel/analytics/react';
+
 function App() {
+
+  useEffect(() => {
+    Analytics();
+  }, []);
+
   return (
       <Routes>
         <Route path='/' element={<LandingPage/>}/>
