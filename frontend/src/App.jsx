@@ -9,8 +9,10 @@ import TrafficPoliceSignIn from './pages/siginIn/TrafficPoliceSignIn'
 import AmbulanceSignUp from './pages/signUp/AmbulanceSignUp'
 import TrafficPolice from './pages/TrafficPolice'
 import AmbulanceMainPage from './pages/ambulance-main-page/AmbulanceMainPage'
+import Analytics from "@vercel/analytics/react"
 function App() {
   return (
+    <>
       <Routes>
         <Route path='/' element={<LandingPage/>}/>
         <Route path='/home' element={<HomePage/>}/>
@@ -22,6 +24,8 @@ function App() {
         <Route path='/traffic-police' element={<TrafficPolice/>}/>
         <Route path='/ambulance-home' element={<AmbulanceMainPage/>}/>
       </Routes>
+      <Analytics />
+    </>
   )
 }
 
