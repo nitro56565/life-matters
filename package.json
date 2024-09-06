@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@vercel/speed-insights": "^1.0.12",
-    "react-router-dom": "^6.25.1"
-  }
-}
