@@ -193,7 +193,7 @@ const AmbulanceMainPage = () => {
       </div>
       <div className="flex gap-2 justify-center items-center">
         <div className="cursor-pointer" onClick={currentLocation}>
-          <img className="w-20" src="https://www.svgrepo.com/show/333873/current-location.svg" alt="Current Location" />
+          <img className="w-20" src="../../assets/current-location-svg.svg" alt="Current Location" />
         </div>
         <button
           onClick={handleRoute}
