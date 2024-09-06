@@ -37,10 +37,10 @@ const AmbulanceMainPage = () => {
     libraries,
   });
 
-  const isLatLngFormat = (input) => {
-    const latLngPattern = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+    const isLatLngFormat = (input) => {
+    const latLngPattern = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
     return latLngPattern.test(input);
-  };
+};
 
   const parseLatLng = (input) => {
     if (isLatLngFormat(input)) {
@@ -54,7 +54,7 @@ const AmbulanceMainPage = () => {
     const place = ref.current.getPlace();
     if (place.geometry) {
       const location = place.geometry.location;
-      setLatLng(location);  // Directly using Google Maps LatLng object
+      setLatLng(location);
       setInput(place.formatted_address || `${location.lat()},${location.lng()}`);
     }
   };
@@ -63,7 +63,7 @@ const AmbulanceMainPage = () => {
     setInput(input);
     const latLng = parseLatLng(input);
     if (latLng) {
-      setLatLng(latLng);  // Set as LatLng object if valid
+      setLatLng(latLng);
     }
   };
 
