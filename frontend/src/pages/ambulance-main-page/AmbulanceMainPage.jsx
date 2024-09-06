@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GoogleMap, Autocomplete, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
 import { FaTimes } from "react-icons/fa";
-import currentlocationImg  from "../../../public/images/current-location-icon.svg";
+import currentlocationImg  from "../../assets/current-location-icon.svg";
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const libraries = ["places"];
