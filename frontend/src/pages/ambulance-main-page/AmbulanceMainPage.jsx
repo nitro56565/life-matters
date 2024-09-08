@@ -8,7 +8,7 @@ const libraries = ["places"];
 
 const containerStyle = {
   width: '100%',
-  height: '550px',
+  height: '100%',
 };
 
 const center = {
@@ -37,10 +37,10 @@ const AmbulanceMainPage = () => {
     libraries,
   });
 
-    const isLatLngFormat = (input) => {
+  const isLatLngFormat = (input) => {
     const latLngPattern = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
     return latLngPattern.test(input);
-};
+  };
 
   const parseLatLng = (input) => {
     if (isLatLngFormat(input)) {
@@ -90,12 +90,12 @@ const AmbulanceMainPage = () => {
     }
   };
   
-  const clearRoute=()=>{
+  const clearRoute = () => {
     setDirectionResponse(null)
     setDistance(null)
-    SetDuration(null)
-    sourceRef.current.value=''
-    destinationRef.current.value=''
+    setDuration(null)
+    sourceRef.current.value = ''
+    destinationRef.current.value = ''
   }
 
   useEffect(() => {
@@ -149,6 +149,10 @@ const AmbulanceMainPage = () => {
     const latLng = new google.maps.LatLng(userLocation.coords.latitude, userLocation.coords.longitude);
     setSourceInput(locationStr);
     setSourceLatLng(latLng);
+    if (map) {
+      map.setCenter(latLng);
+      map.setZoom(15);
+    }
   };
 
   const errorLocation = () => {
@@ -160,7 +164,7 @@ const AmbulanceMainPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="scroll-smooth container mx-auto p-4">
       <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
         Ambulance Portal
       </h1>
@@ -202,7 +206,7 @@ const AmbulanceMainPage = () => {
         <button onClick={clearRoute}> <FaTimes/></button>
       </div>
       <div className="flex gap-2 justify-center items-center">
-          <img src={currentlocationImg} className=" cursor-pointer w-10 h-10"  alt="" onClick={currentLocation}/>
+        <img src={currentlocationImg} className=" cursor-pointer w-10 h-10" alt="Current Location" onClick={currentLocation} />
         <button
           onClick={handleRoute}
           className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
@@ -213,7 +217,7 @@ const AmbulanceMainPage = () => {
           Start
         </button>
       </div>
-      <div className="border border-gray-300 rounded mt-6">
+      <div className="scroll-smooth overflow-y-auto h-screen border border-gray-300 rounded mt-6">
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
