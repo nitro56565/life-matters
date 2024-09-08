@@ -37,10 +37,10 @@ const AmbulanceMainPage = () => {
     libraries,
   });
 
-    const isLatLngFormat = (input) => {
+  const isLatLngFormat = (input) => {
     const latLngPattern = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
     return latLngPattern.test(input);
-};
+  };
 
   const parseLatLng = (input) => {
     if (isLatLngFormat(input)) {
@@ -90,13 +90,13 @@ const AmbulanceMainPage = () => {
     }
   };
   
-  const clearRoute=()=>{
+  const clearRoute = () => {
     setDirectionResponse(null)
     setDistance(null)
-    SetDuration(null)
-    sourceRef.current.value=''
-    destinationRef.current.value=''
-  } 
+    setDuration(null)
+    sourceRef.current.value = ''
+    destinationRef.current.value = ''
+  }
 
   useEffect(() => {
     if (map) {
@@ -149,6 +149,10 @@ const AmbulanceMainPage = () => {
     const latLng = new google.maps.LatLng(userLocation.coords.latitude, userLocation.coords.longitude);
     setSourceInput(locationStr);
     setSourceLatLng(latLng);
+    if (map) {
+      map.setCenter(latLng);
+      map.setZoom(15);
+    }
   };
 
   const errorLocation = () => {
@@ -202,7 +206,7 @@ const AmbulanceMainPage = () => {
         <button onClick={clearRoute}> <FaTimes/></button>
       </div>
       <div className="flex gap-2 justify-center items-center">
-          <img src={currentlocationImg} className=" cursor-pointer w-10 h-10"  alt="" onClick={currentLocation}/>
+        <img src={currentlocationImg} className=" cursor-pointer w-10 h-10" alt="Current Location" onClick={currentLocation} />
         <button
           onClick={handleRoute}
           className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins"
