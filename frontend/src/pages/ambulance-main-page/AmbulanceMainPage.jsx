@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { GoogleMap, Autocomplete, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
 import { FaTimes } from "react-icons/fa";
 import currentlocationImg  from "../../assets/current-location-icon.svg";
+
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+// Move libraries array outside of the component
 const libraries = ["places"];
 
 const containerStyle = {
@@ -12,8 +14,8 @@ const containerStyle = {
 };
 
 const center = {
-  lat: -3.745,
-  lng: -38.523,
+  lat: 18.516726,
+  lng: 73.856255,
 };
 
 const AmbulanceMainPage = () => {
@@ -22,9 +24,9 @@ const AmbulanceMainPage = () => {
   const [destinationLatLng, setDestinationLatLng] = useState(null);
   const [sourceInput, setSourceInput] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
-  const [distance, setDistance] = useState("")
-  const [duration, setDuration] = useState("")
-  const [directionResponse, setDirectionResponse] = useState(null)
+  const [distance, setDistance] = useState("");
+  const [duration, setDuration] = useState("");
+  const [directionResponse, setDirectionResponse] = useState(null);
   const sourceRef = useRef();
   const destinationRef = useRef();
   const directionsServiceRef = useRef(null);
@@ -79,9 +81,9 @@ const AmbulanceMainPage = () => {
           if (status === 'OK') {
             directionsRendererRef.current.setDirections(result);
             console.log(result);
-            setDirectionResponse(result)
-            setDistance(result.routes[0].legs[0].distance.text)
-            setDuration(result.routes[0].legs[0].duration.text)
+            setDirectionResponse(result);
+            setDistance(result.routes[0].legs[0].distance.text);
+            setDuration(result.routes[0].legs[0].duration.text);
           } else {
             console.error(`Directions request failed due to ${status}`);
           }
@@ -91,12 +93,13 @@ const AmbulanceMainPage = () => {
   };
   
   const clearRoute = () => {
-    setDirectionResponse(null)
-    setDistance(null)
-    setDuration(null)
-    sourceRef.current.value = ''
-    destinationRef.current.value = ''
-  }
+    setDirectionResponse(null);
+    setDistance(null);
+    setDuration(null);
+    setSourceInput("");
+    setDestinationInput("");
+    setMap(null); // not yet implementated
+  };
 
   useEffect(() => {
     if (map) {
@@ -142,6 +145,22 @@ const AmbulanceMainPage = () => {
       </div>
     );
   }
+
+  const openGoogleMapsDirections = () => {
+    if (sourceLatLng && destinationLatLng) {
+      const sourceLat = sourceLatLng.lat();
+      const sourceLng = sourceLatLng.lng();
+      const destinationLat = destinationLatLng.lat();
+      const destinationLng = destinationLatLng.lng();
+
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&origin=${sourceLat},${sourceLng}&destination=${destinationLat},${destinationLng}&travelmode=driving`,
+        '_blank'
+      );
+    } else {
+      console.error("Source or destination is not set.");
+    }
+  };  
 
   const gotLocation = (userLocation) => {
     console.log("User Location is ", userLocation);
@@ -201,8 +220,8 @@ const AmbulanceMainPage = () => {
         </div>
       </div>
       <div className="flex justify-between gap-10 mb-3 font-poppins">
-        <p>Duration:{duration}</p>
-        <p>Distance:{distance}</p>
+        <p>Duration: {duration}</p>
+        <p>Distance: {distance}</p>
         <button onClick={clearRoute}> <FaTimes/></button>
       </div>
       <div className="flex gap-2 justify-center items-center">
@@ -213,7 +232,7 @@ const AmbulanceMainPage = () => {
         >
           Show Route
         </button>
-        <button className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins">
+        <button onClick={openGoogleMapsDirections} className="w-full bg-[#7326F1] text-white py-2 px-4 rounded font-poppins">
           Start
         </button>
       </div>
@@ -221,7 +240,7 @@ const AmbulanceMainPage = () => {
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
-          zoom={10}
+          zoom={6}
           onLoad={(mapInstance) => setMap(mapInstance)}
         >
           {directionResponse && <DirectionsRenderer directions={directionResponse} />}
