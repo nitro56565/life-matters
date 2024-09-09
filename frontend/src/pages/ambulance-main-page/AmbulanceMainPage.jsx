@@ -10,7 +10,7 @@ const libraries = ["places"];
 
 const containerStyle = {
   width: '100%',
-  height: '100%',
+  height: '550px',
 };
 
 const center = {
@@ -183,7 +183,7 @@ const AmbulanceMainPage = () => {
   };
 
   return (
-    <div className="scroll-smooth container mx-auto p-4">
+    <div className="scroll-smooth container mx-auto px-2 py-4">
       <h1 className="text-xl font-bold text-center mb-6 font-poppins text-[#7326F1]">
         Ambulance Portal
       </h1>
@@ -236,12 +236,13 @@ const AmbulanceMainPage = () => {
           Start
         </button>
       </div>
-      <div className="scroll-smooth overflow-y-auto h-screen border border-gray-300 rounded mt-6">
+      <div className="border border-gray-300 rounded mt-6">
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
           zoom={6}
           onLoad={(mapInstance) => setMap(mapInstance)}
+          options={{gestureHandling:'greedy'}}
         >
           {directionResponse && <DirectionsRenderer directions={directionResponse} />}
         </GoogleMap>
