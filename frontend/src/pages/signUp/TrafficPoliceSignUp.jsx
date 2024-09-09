@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const TrafficPoliceSignUp = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const navigateTo = useNavigate();
   const [formData, setFormData] = useState({
     Name: "",
@@ -32,6 +34,9 @@ const TrafficPoliceSignUp = () => {
   //   history.push('/signin');
   // };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  }
   return (
     <div className="flex justify-center items-center min-h-screen font-poppins">
       <div className="sm:bg-white p-8 rounded-lg ">
@@ -75,14 +80,20 @@ const TrafficPoliceSignUp = () => {
             <label>Password:</label>
             <input
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
             />
+            <div className='absolute top-9 right-2'>
+         <button type="button" onClick={togglePasswordVisibility}>
+            {showPassword ? <FiEye/> : <FiEyeOff />}
+
+          </button>
+         </div>
           </div>
-          <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
+          <button type="submit" className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
             Sign Up
           </button>
           <button

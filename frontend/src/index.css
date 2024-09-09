@@ -18,6 +18,7 @@
 
 * {
   margin: 0;
+  overflow:hidden;
 }
 
 html, body {
