@@ -75,7 +75,7 @@ const AmbulanceMainPage = () => {
         {
           origin: sourceLatLng,
           destination: destinationLatLng,
-          travelMode: 'DRIVING',
+          travelMode: 'DRIVING'
         },
         (result, status) => {
           if (status === 'OK') {
