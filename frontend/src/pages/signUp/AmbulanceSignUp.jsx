@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 function AmbulanceSignUp() {
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     Name: "",
     HospitalName: "",
@@ -34,10 +32,6 @@ function AmbulanceSignUp() {
   // const redirectToSignIn = () => {
   //   history.push('/signin');
   // };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  }
   const navigateTo = useNavigate();
 
   return (
@@ -94,21 +88,14 @@ function AmbulanceSignUp() {
             <label>Password:</label>
             <input
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
-              type={showPassword ? "text" : "password"}
+              type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
             />
-
-<button type="button" className='absolute top-9 right-2'>
-         <span  onClick={togglePasswordVisibility}>
-            {showPassword ? <FiEye/> : <FiEyeOff />}
-
-          </span>
-         </button>
           </div>
-          <button type="submit" className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
+          <button className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 ">
             Sign Up
           </button>
         </form>

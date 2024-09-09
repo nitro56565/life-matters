@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { FiEye } from "react-icons/fi";
-import { FiEyeOff } from "react-icons/fi";
+import React, { useState } from 'react';
+
 function SignIn ({redirectUrl}){
   const [showPassword, setShowPassword] = useState(false);
 
@@ -26,15 +25,6 @@ function SignIn ({redirectUrl}){
             placeholder="Enter your password"
             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
           />
-
-         <div className='absolute top-4 right-2'>
-         <button onClick={togglePasswordVisibility}>
-            {showPassword ? <FiEye/> : <FiEyeOff />}
-
-          </button>
-         </div>
-
-          
           
         </div>
         <div className="mb-6 text-right">
