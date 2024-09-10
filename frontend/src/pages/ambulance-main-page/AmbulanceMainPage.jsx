@@ -10,7 +10,7 @@ const libraries = ["places"];
 
 const containerStyle = {
   width: '100%',
-  height: '550px',
+  height: '370px'
 };
 
 const center = {
@@ -38,7 +38,7 @@ const AmbulanceMainPage = () => {
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
-
+  
   const isLatLngFormat = (input) => {
     const latLngPattern = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
     return latLngPattern.test(input);
@@ -71,26 +71,26 @@ const AmbulanceMainPage = () => {
 
   const handleRoute = () => {
     if (directionsServiceRef.current && sourceLatLng && destinationLatLng) {
-      directionsServiceRef.current.route(
-        {
-          origin: sourceLatLng,
-          destination: destinationLatLng,
-          travelMode: 'DRIVING',
-        },
-        (result, status) => {
-          if (status === 'OK') {
-            directionsRendererRef.current.setDirections(result);
+        directionsServiceRef.current.route(
+            {
+                origin: sourceLatLng,
+                destination: destinationLatLng,
+                travelMode: 'DRIVING',
+            },
+            (result, status) => {
+                if (status === 'OK') {
+                    directionsRendererRef.current.setDirections(result);
             console.log(result);
-            setDirectionResponse(result);
-            setDistance(result.routes[0].legs[0].distance.text);
-            setDuration(result.routes[0].legs[0].duration.text);
-          } else {
-            console.error(`Directions request failed due to ${status}`);
-          }
-        }
-      );
+                    setDirectionResponse(result);
+                    setDistance(result.routes[0].legs[0].distance.text);
+                    setDuration(result.routes[0].legs[0].duration.text);
+                } else {
+                    console.error(`Directions request failed due to ${status}`);
+                }
+            }
+        );
     }
-  };
+};
   
   const clearRoute = () => {
     setDirectionResponse(null);
@@ -219,10 +219,10 @@ const AmbulanceMainPage = () => {
           </Autocomplete>
         </div>
       </div>
-      <div className="flex justify-between gap-10 mb-3 font-poppins">
+      <div className="flex justify-between gap-10 mb-3 font-poppins text-sm">
         <p>Duration: {duration}</p>
         <p>Distance: {distance}</p>
-        <button onClick={clearRoute}> <FaTimes/></button>
+        <button className="text-lg" onClick={clearRoute}> <FaTimes/></button>
       </div>
       <div className="flex gap-2 justify-center items-center">
         <img src={currentlocationImg} className=" cursor-pointer w-10 h-10" alt="Current Location" onClick={currentLocation} />

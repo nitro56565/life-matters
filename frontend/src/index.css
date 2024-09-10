@@ -18,11 +18,11 @@
 
 * {
   margin: 0;
-  overflow:hidden;
 }
 
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
