@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { connection } from './data.js';
 import { TrafficSignal } from './models/TrafficSignal.js';
+import ambulanceRoutes from './routes/ambulance.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(cors({
   methods: ["GET", "POST"],
   credentials: true,
 }));
+app.use('/api/ambulance', ambulanceRoutes);
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
