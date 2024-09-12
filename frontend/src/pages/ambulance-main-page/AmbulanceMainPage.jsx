@@ -102,6 +102,9 @@ const AmbulanceMainPage = () => {
   };
 
   const clearRoute = () => {
+    if(directionsRendererRef.current){
+      directionsRendererRef.current.setDirections({routes:[]})
+    }
     setDirectionResponse(null);
     setDistance(null);
     setDuration(null);
