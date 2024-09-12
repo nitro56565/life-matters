@@ -28,8 +28,8 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
 
   const attemptSignIn = async () => {
     const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
-    // console.log(`Attempting sign-in with URL: ${apiUrl}`)
-    // console.log('Form data being sent:', formData);
+    // console.log(`Attempting sign-in with URL: ${apiUrl}`);
+    // console.log('Form data being sent:', formData)
 
     try {
       const response = await axios.post(apiUrl, formData);
