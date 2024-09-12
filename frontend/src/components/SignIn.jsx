@@ -28,13 +28,13 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
 
   const attemptSignIn = async () => {
     const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
-    console.log(`Attempting sign-in with URL: ${apiUrl}`); 
+    console.log(`Attempting sign-in with URL: ${apiUrl}`);
     console.log('Form data being sent:', formData);
-    
+
     try {
       const response = await axios.post(apiUrl, formData);
-      // console.log(`Response received from ${apiUrl}:`, response);
-  
+      console.log(`Response received from ${apiUrl}:`, response);
+
       if (response.status === 200) {
         setSuccessMessage("Sign-in successful! Redirecting...");
         setTimeout(() => {
@@ -50,7 +50,7 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
       setErrorMessage("An error occurred during sign-in. Please try again.");
       return false;
     }
-  };    
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
