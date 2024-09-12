@@ -10,21 +10,38 @@ import AmbulanceSignUp from './pages/signUp/AmbulanceSignUp';
 import TrafficPolice from './pages/TrafficPolice';
 import AmbulanceMainPage from './pages/ambulance-main-page/AmbulanceMainPage';
 import TrafficPoliceMainPage from './pages/trafficPolice-main-page/TrafficPoliceMainPage';
+import ProtectedRoute from './components/ProtectedRoute'; // Import the ProtectedRoute component
 
 function Routing() {
   return (
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/ambulancesignin" element={<AmbulanceSignIn />} />
-        <Route path="/ambulancesignup" element={<AmbulanceSignUp />} />
-        <Route path="/trafficpolicesignin" element={<TrafficPoliceSignIn />} />
-        <Route path="/trafficpolicesignup" element={<TrafficPoliceSignUp />} />
-        <Route path="/ambulance" element={<Ambulance />} />
-        <Route path="/traffic-police" element={<TrafficPolice />} />
-        <Route path="/ambulance-home" element={<AmbulanceMainPage />} />
-        <Route path="/trafficpolice-home" element={<TrafficPoliceMainPage />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/ambulancesignin" element={<AmbulanceSignIn />} />
+      <Route path="/ambulancesignup" element={<AmbulanceSignUp />} />
+      <Route path="/trafficpolicesignin" element={<TrafficPoliceSignIn />} />
+      <Route path="/trafficpolicesignup" element={<TrafficPoliceSignUp />} />
+      <Route path="/ambulance" element={<Ambulance />} />
+      <Route path="/traffic-police" element={<TrafficPolice />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/ambulance-home"
+        element={
+          <ProtectedRoute redirectPath="/ambulancesignin">
+            <AmbulanceMainPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/trafficpolice-home"
+        element={
+          <ProtectedRoute redirectPath="/trafficpolicesignin">
+            <TrafficPoliceMainPage />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
