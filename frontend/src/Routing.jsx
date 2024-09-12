@@ -9,6 +9,7 @@ import TrafficPoliceSignIn from './pages/siginIn/TrafficPoliceSignIn';
 import AmbulanceSignUp from './pages/signUp/AmbulanceSignUp';
 import TrafficPolice from './pages/TrafficPolice';
 import AmbulanceMainPage from './pages/ambulance-main-page/AmbulanceMainPage';
+import TrafficPoliceMainPage from './pages/trafficPolice-main-page/TrafficPoliceMainPage';
 
 function Routing() {
   return (
@@ -22,6 +23,7 @@ function Routing() {
         <Route path="/ambulance" element={<Ambulance />} />
         <Route path="/traffic-police" element={<TrafficPolice />} />
         <Route path="/ambulance-home" element={<AmbulanceMainPage />} />
+        <Route path="/trafficpolice-home" element={<TrafficPoliceMainPage />} />
       </Routes>
   );
 }

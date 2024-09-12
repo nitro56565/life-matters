@@ -3,7 +3,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function SignIn ({redirectUrl}){
+function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     phone: '',
@@ -26,23 +26,42 @@ function SignIn ({redirectUrl}){
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const attemptSignIn = async () => {
+    const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
+    // console.log(`Attempting sign-in with URL: ${apiUrl}`); 
+    // console.log('Form data being sent:', formData);
+    
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/ambulance/signin`, formData);
-      
+      const response = await axios.post(apiUrl, formData);
+      // console.log(`Response received from ${apiUrl}:`, response);
+  
       if (response.status === 200) {
         setSuccessMessage("Sign-in successful! Redirecting...");
         setTimeout(() => {
-          navigate("/ambulance-home"); // Redirect to dashboard or another page on success
-        }, 2000); // Redirect after 2 seconds
+          navigate(redirectUrl);
+        }, 2000);
+        return true;
       } else {
-        setErrorMessage(response.data.msg || "Sign-in failed. Please try again.");
+        setErrorMessage(response.data.message || "Sign-in failed. Please try again.");
+        return false;
       }
     } catch (err) {
       console.error("Error during sign-in:", err);
       setErrorMessage("An error occurred during sign-in. Please try again.");
+      return false;
+    }
+  };    
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    // Attempt sign-in
+    const signInSuccessful = await attemptSignIn();
+
+    if (!signInSuccessful) {
+      setErrorMessage("Sign-in failed. Please try again.");
     }
   };
 
@@ -90,7 +109,7 @@ function SignIn ({redirectUrl}){
           </button>
           <p className="text-center mb-6">
             Don’t have an account?{' '}
-            <a href={redirectUrl} className="text-[#7326F1] hover:underline">
+            <a href={signupLink} className="text-[#7326F1] hover:underline">
               Sign up
             </a>
           </p>
