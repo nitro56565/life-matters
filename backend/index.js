@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { connection } from './data.js';
 import { TrafficSignal } from './models/TrafficSignal.js';
+import ambulanceRoutes from './routes/ambulance.js';
+import trafficPoliceRoutes from './routes/trafficpolice.js'
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -10,10 +12,12 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: ["https://life-matters.vercel.app"],
+  origin: ["https://life-matters.vercel.app","http://localhost:8000"],
   methods: ["GET", "POST"],
   credentials: true,
 }));
+app.use('/api/ambulance', ambulanceRoutes);
+app.use('/api/trafficpolice', trafficPoliceRoutes)
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
