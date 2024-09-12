@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,20 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
   const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+  // Check if user is already logged in on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const userType = localStorage.getItem('userType');
+    
+    if (token && userType) {
+      if (userType === 'ambulance') {
+        navigate('/ambulance-home');
+      } else if (userType === 'traffic-police') {
+        navigate('/trafficpolice-home');
+      }
+    }
+  }, [navigate]);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -28,17 +42,25 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
 
   const attemptSignIn = async () => {
     const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
-    // console.log(`Attempting sign-in with URL: ${apiUrl}`);
-    // console.log('Form data being sent:', formData)
-
+    
     try {
       const response = await axios.post(apiUrl, formData);
-      // console.log(`Response received from ${apiUrl}:`, response);
 
       if (response.status === 200) {
+        const { token, userType } = response.data;
+
+        // Store the token and user type in localStorage
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userType', userType);
+
         setSuccessMessage("Sign-in successful! Redirecting...");
         setTimeout(() => {
-          navigate(redirectUrl);
+          // Redirect to the appropriate dashboard
+          if (userType === 'ambulance') {
+            navigate('/ambulance-home');
+          } else if (userType === 'traffic-police') {
+            navigate('/trafficpolice-home');
+          }
         }, 2000);
         return true;
       } else {

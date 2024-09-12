@@ -50,6 +50,10 @@ router.post('/signup', async (req, res) => {
 router.post('/signin', async (req, res) => {
     const { phone, password } = req.body;
 
+    if (!phone || !password) {
+        return res.status(400).json({ msg: 'Phone and password are required' });
+    }
+
     try {
         // Find the ambulance by phone number
         let ambulance = await AmbulanceData.findOne({ phone });
@@ -70,15 +74,11 @@ router.post('/signin', async (req, res) => {
             },
         };
 
-        jwt.sign(
-            payload,
-            JWT_SECRET,
-            { expiresIn: '1h' },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+            if (err) throw err;
+            // Return the token and user type
+            res.json({ token, userType: 'ambulance' });
+        });
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server error');

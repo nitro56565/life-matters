@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GoogleMap, Autocomplete, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
 import { FaTimes } from "react-icons/fa";
-import currentlocationImg  from "../../assets/current-location-icon.svg";
+import currentlocationImg from "../../assets/current-location-icon.svg";
+import { useNavigate } from "react-router-dom";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -33,12 +34,20 @@ const AmbulanceMainPage = () => {
   const directionsRendererRef = useRef(null);
   const sourceMarkerRef = useRef(null);
   const destinationMarkerRef = useRef(null);
+  const navigate = useNavigate() // Use the hook to navigate
 
+  const logout = (event) => {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    console.log("Logged out, token removed:", localStorage.getItem('authToken'));
+    navigate('/ambulancesignin'); // Redirect to login page
+};
+  
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
-  
+
   const isLatLngFormat = (input) => {
     const latLngPattern = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/;
     return latLngPattern.test(input);
@@ -71,27 +80,27 @@ const AmbulanceMainPage = () => {
 
   const handleRoute = () => {
     if (directionsServiceRef.current && sourceLatLng && destinationLatLng) {
-        directionsServiceRef.current.route(
-            {
-                origin: sourceLatLng,
-                destination: destinationLatLng,
-                travelMode: 'DRIVING',
-            },
-            (result, status) => {
-                if (status === 'OK') {
-                    directionsRendererRef.current.setDirections(result);
+      directionsServiceRef.current.route(
+        {
+          origin: sourceLatLng,
+          destination: destinationLatLng,
+          travelMode: 'DRIVING',
+        },
+        (result, status) => {
+          if (status === 'OK') {
+            directionsRendererRef.current.setDirections(result);
             console.log(result);
-                    setDirectionResponse(result);
-                    setDistance(result.routes[0].legs[0].distance.text);
-                    setDuration(result.routes[0].legs[0].duration.text);
-                } else {
-                    console.error(`Directions request failed due to ${status}`);
-                }
-            }
-        );
+            setDirectionResponse(result);
+            setDistance(result.routes[0].legs[0].distance.text);
+            setDuration(result.routes[0].legs[0].duration.text);
+          } else {
+            console.error(`Directions request failed due to ${status}`);
+          }
+        }
+      );
     }
-};
-  
+  };
+
   const clearRoute = () => {
     setDirectionResponse(null);
     setDistance(null);
@@ -160,7 +169,7 @@ const AmbulanceMainPage = () => {
     } else {
       console.error("Source or destination is not set.");
     }
-  };  
+  };
 
   const gotLocation = (userLocation) => {
     console.log("User Location is ", userLocation);
@@ -219,10 +228,16 @@ const AmbulanceMainPage = () => {
           </Autocomplete>
         </div>
       </div>
+      {/* Logout Button */}
+      <div className="text-right mb-4">
+        <button onClick={logout} className="text-sm bg-red-500 text-white py-1 px-3 rounded">
+          Logout
+        </button>
+      </div>
       <div className="flex justify-between gap-10 mb-3 font-poppins text-sm">
         <p>Duration: {duration}</p>
         <p>Distance: {distance}</p>
-        <button className="text-lg" onClick={clearRoute}> <FaTimes/></button>
+        <button className="text-lg" onClick={clearRoute}> <FaTimes /></button>
       </div>
       <div className="flex gap-2 justify-center items-center">
         <img src={currentlocationImg} className=" cursor-pointer w-10 h-10" alt="Current Location" onClick={currentLocation} />
@@ -242,7 +257,7 @@ const AmbulanceMainPage = () => {
           center={center}
           zoom={6}
           onLoad={(mapInstance) => setMap(mapInstance)}
-          options={{gestureHandling:'greedy'}}
+          options={{ gestureHandling: 'greedy' }}
         >
           {directionResponse && <DirectionsRenderer directions={directionResponse} />}
         </GoogleMap>

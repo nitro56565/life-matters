@@ -55,13 +55,14 @@ router.post('/signup', async (req, res) => {
 // Sign-in Route
 router.post('/signin', async (req, res) => {
     const { phone, password } = req.body;
+
     if (!phone || !password) {
         return res.status(400).json({ msg: 'Phone and password are required' });
     }
+
     try {
         let trafficPolice = await TrafficPoliceData.findOne({ phone });
         if (!trafficPolice) {
-            
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
 
@@ -71,8 +72,10 @@ router.post('/signin', async (req, res) => {
         }
 
         const payload = { trafficPolice: { id: trafficPolice.id } };
+
         jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
             if (err) throw err;
+            // Return the token and user type
             res.json({ token, userType: 'trafficPolice' });
         });
     } catch (error) {
