@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    phone: '',
-    password: '',
+    phone: "",
+    password: "",
   });
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Check if user is already logged in on component mount
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userType = localStorage.getItem('userType');
+    const token = localStorage.getItem("authToken");
+    const userType = localStorage.getItem("userType");
     
     if (token && userType) {
-      if (userType === 'ambulance') {
-        navigate('/ambulance-home');
-      } else if (userType === 'traffic-police') {
-        navigate('/trafficpolice-home');
+      if (userType === "ambulance") {
+        navigate("/ambulance-home");
+      } else if (userType === "traffic-police") {
+        navigate("/trafficpolice-home");
       }
     }
   }, [navigate]);
@@ -50,21 +50,22 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
         const { token, userType } = response.data;
 
         // Store the token and user type in localStorage
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userType', userType);
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("userType", userType);
 
         setSuccessMessage("Sign-in successful! Redirecting...");
         setTimeout(() => {
           // Redirect to the appropriate dashboard
-          if (userType === 'ambulance') {
-            navigate('/ambulance-home');
-          } else if (userType === 'traffic-police') {
-            navigate('/trafficpolice-home');
+          if (userType === "ambulance") {
+            navigate("/ambulance-home");
+          } else if (userType === "traffic-police") {
+            navigate("/trafficpolice-home");
           }
         }, 2000);
         return true;
       } else {
-        setErrorMessage(response.data.message || "Sign-in failed. Please try again.");
+        setErrorMessage(
+          response.data.message || "Sign-in failed. Please try again.");
         return false;
       }
     } catch (err) {
@@ -76,8 +77,8 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
     // Attempt sign-in
     const signInSuccessful = await attemptSignIn();
@@ -109,7 +110,7 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
           </div>
           <div className="mb-4 relative">
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Enter your password"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
@@ -117,12 +118,19 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
               onChange={handleChange}
               required
             />
-            <button type="button" className="absolute top-4 right-2" onClick={togglePasswordVisibility}>
+            <button
+              type="button"
+              className="absolute top-4 right-2"
+              onClick={togglePasswordVisibility}
+            >
               {showPassword ? <FiEye /> : <FiEyeOff />}
             </button>
           </div>
           <div className="mb-6 text-right">
-            <a href="#forgot-password" className="text-[#7326F1] hover:underline">
+          <a
+              href="/forgot-password"
+              className="text-[#7326F1] hover:underline"
+            >
               Forgot password?
             </a>
           </div>
@@ -130,7 +138,7 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
             Sign In
           </button>
           <p className="text-center mb-6">
-            Don’t have an account?{' '}
+            Don’t have an account?{" "}
             <a href={signupLink} className="text-[#7326F1] hover:underline">
               Sign up
             </a>
