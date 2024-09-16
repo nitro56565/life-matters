@@ -11,6 +11,7 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -34,10 +35,25 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+
+    if (name === "phone") {
+      const numericValue = value.replace(/\D/g, "");
+      
+      if (numericValue.length <= 10) {
+        setFormData((prevState) => ({
+          ...prevState,
+          [name]: numericValue,
+        }));
+        setPhoneError(numericValue.length === 10 ? "" : "Phone number must be 10 digits.");
+      } else {
+        setPhoneError("Phone number must be 10 digits.");
+      }
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const attemptSignIn = async () => {
@@ -81,6 +97,12 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
     setSuccessMessage("");
 
     // Attempt sign-in
+
+    if (phoneError) {
+      setErrorMessage(phoneError);
+      return;
+    }
+
     const signInSuccessful = await attemptSignIn();
 
     if (!signInSuccessful) {
@@ -99,14 +121,16 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
-              type="number"
+              type="tel"
               name="phone"
               placeholder="Enter your phone number"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
               value={formData.phone}
               onChange={handleChange}
               required
+              pattern="\d{10}"
             />
+            {phoneError && <p className="text-red-500">{phoneError}</p>}
           </div>
           <div className="mb-4 relative">
             <input
@@ -127,7 +151,7 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
             </button>
           </div>
           <div className="mb-6 text-right">
-          <a
+            <a
               href="/forgot-password"
               className="text-[#7326F1] hover:underline"
             >

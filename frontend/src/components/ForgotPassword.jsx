@@ -9,18 +9,45 @@ function ForgotPassword() {
 
   const [inputValue, setInputValue] = useState("");
   const [isVisible, setIsVisible] = useState(true);
+  const [error, setError] = useState('');
   const [otp, setOtp] = useState(new Array(6).fill(""));
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  // Function to validate phone number and toggle button state
+  const validatePhoneNumber = (value) => {
+    if (/^\d{10}$/.test(value)) {
+      setIsButtonDisabled(false);
+    } else {
+      setIsButtonDisabled(true);
+    }
+  };
 
   const handleInputChange = (event) => {
-    setInputValue(event.target.value);
+    const value = event.target.value;
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setInputValue(value);
+      setError('');
+      validatePhoneNumber(value);  
+    } else if (value.length > 10) {
+      setError('Phone number cannot exceed 10 digits.');
+      setIsButtonDisabled(true);
+    } else {
+      setError('Phone number can only contain digits.');
+      setIsButtonDisabled(true);
+    }
   };
 
   const handleClick = () => {
-    setIsVisible(!isVisible);
+      setIsVisible(!isVisible);
   };
 
   const handleChange = (element, index) => {
     const value = element.value;
+    if (!/^\d?$/.test(value)) {
+      setError('OTP can only contain digits.');
+      return;
+    }
+    setError('');
 
     const otpArray = [...otp];
     otpArray[index] = value;
@@ -45,21 +72,25 @@ function ForgotPassword() {
   return (
     <div className="flex justify-center items-center min-h-screen font-poppins">
       <div className="sm:bg-white p-8 rounded-lg shadow-lg">
-        <div className="text-center mb-4">
-          <h1 className="text-2xl items-center font-semibold ml-4 ">
+        <div className="flex items-center mb-4">
+          <h1 className="text-2xl font-semibold ml-4">
             Forgot Password
           </h1>
         </div>
         <div className="mb-4 flex justify-center">
           {isVisible && (
-            <input
-              type="number"
-              placeholder="Enter your phone number"
-              value={inputValue}
-              onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
-              required
-            />
+            <div>
+              <input
+                type="text"
+                placeholder="Enter your phone number"
+                value={inputValue}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
+                maxLength={10}
+                required
+              />
+              {error && <p className="text-red-500 text-sm mt-1 ">{error}</p>}
+            </div>
           )}
           {!isVisible && <p>Enter the code from SMS we sent to {inputValue}</p>}
         </div>
@@ -85,13 +116,14 @@ function ForgotPassword() {
               type="submit"
               className="w-full bg-[#7326F1] text-white py-3 rounded-full mb-6 "
               onClick={handleClick}
+              disabled={isButtonDisabled}
             >
               {!isVisible ? "Validate OTP" : "Request OTP"}
             </button>
           </div>
         </form>
-        <div className="mb-6 text-right">
-          Did't you receive any code?
+        <div className="mb-6 text-center text-sm">
+          Didn't receive any code?
           <a href="/forgot-password" className="text-[#7326F1] hover:underline">
             Click here
           </a>
