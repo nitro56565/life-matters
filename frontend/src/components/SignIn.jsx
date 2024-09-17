@@ -38,15 +38,25 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
 
     if (name === "phone") {
       const numericValue = value.replace(/\D/g, "");
-      
+
+      if (!/^\d?$/.test(e.value)) {
+        setPhoneError('OTP can only contain digits.');
+        return;
+      }
+
       if (numericValue.length <= 10) {
         setFormData((prevState) => ({
           ...prevState,
           [name]: numericValue,
         }));
-        setPhoneError(numericValue.length === 10 ? "" : "Phone number must be 10 digits.");
-      } else {
-        setPhoneError("Phone number must be 10 digits.");
+        if (numericValue.length === 10) {
+          setPhoneError("");
+        }else if (numericValue.length > 10) {
+          setPhoneError('Phone number cannot exceed 10 digits.');
+          setIsButtonDisabled(true);
+        } else {
+          setPhoneError("Phone number must be 10 digits.");
+        }
       }
     } else {
       setFormData((prevState) => ({
@@ -121,7 +131,7 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
-              type="tel"
+              type="text"
               name="phone"
               placeholder="Enter your phone number"
               className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1]"
@@ -152,9 +162,9 @@ function SignIn({ apiEndpoint, redirectUrl, signupLink }) {
           </div>
           <div className="mb-6 text-right">
             <a
-              href="/forgot-password"
-              className="text-[#7326F1] hover:underline"
-            >
+             href="/forgot-password"
+             className="text-[#7326F1] hover:underline"
+             >
               Forgot password?
             </a>
           </div>

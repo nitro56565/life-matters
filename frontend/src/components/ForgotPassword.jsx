@@ -92,7 +92,7 @@ function ForgotPassword() {
               {error && <p className="text-red-500 text-sm mt-1 ">{error}</p>}
             </div>
           )}
-          {!isVisible && <p>Enter the code from SMS we sent to {inputValue}</p>}
+          {!isVisible && <p>Enter the code from SMS we sent to <span className="text-[#7326F1]">+91{inputValue}</span></p>}
         </div>
         <form onSubmit={handleSubmit}>
           {!isVisible && (
@@ -106,7 +106,7 @@ function ForgotPassword() {
                   value={otp[index]}
                   onChange={(e) => handleChange(e.target, index)}
                   onKeyDown={(e) => handleBackspace(e, index)}
-                  className="flex-1 w-10 p-3 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1] ml-2"
+                  className="text-center w-10 p-2 border border-gray-300 rounded focus:outline-none focus:border-[#7326F1] ml-2"
                 />
               ))}
             </div>
