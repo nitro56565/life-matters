@@ -1,20 +1,17 @@
 # LIFE MATTERS Contribution Guide
 Thank you for your interest in contributing to the Life Matters project! Your contributions can help save lives by improving the efficiency of ambulance services in traffic. Here are the guidelines we’d like you to follow:
 
-* [Code of Conduct](contribute.coc)
-* [Questions and Problems](contribute.question)
-* [Issues and Bugs](contribute.issue)
-* [Feature Requests](contribute.feature)
-* [Improving Documentation](contribute.docs)
-* [Updating Documentation](contribute.updating)
-* [Issue Submission Guidelines](contribute.submit)
-* [Pull Request Submission Guidelines](contribute.submit-pr)
+* [Code of Conduct](#coc)
+* [Questions and Problems](#question)
+* [Issues and Bugs](#issue)
+* [Feature Requests](#feature)
+* [Improving Documentation](#docs)
+* [Issue Submission Guidelines](#submit)
+* [Pull Request Submission Guidelines](#submit-pr)
 
 ## <a name="coc"></a> Code of Conduct
 
-Help us keep the Life Matters community open and inclusive. Please read and follow our [Code of Conduct](#).
-
-## <a name="requests"></a> Questions, Bugs, Features
+Help us keep the Life Matters community open and inclusive. Please read and follow our [Code of Conduct](#coc).
 
 ### <a name="question"></a> Got a Question or Problem?
 
