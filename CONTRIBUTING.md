@@ -1,7 +1,6 @@
 # LIFE MATTERS Contribution Guide
 Thank you for your interest in contributing to the Life Matters project! Your contributions can help save lives by improving the efficiency of ambulance services in traffic. Here are the guidelines we’d like you to follow:
 
-* [Code of Conduct](#coc)
 * [Questions and Problems](#question)
 * [Issues and Bugs](#issue)
 * [Feature Requests](#feature)
@@ -9,13 +8,11 @@ Thank you for your interest in contributing to the Life Matters project! Your co
 * [Issue Submission Guidelines](#submit)
 * [Pull Request Submission Guidelines](#submit-pr)
 
-## <a name="coc"></a> Code of Conduct
-
-Help us keep the Life Matters community open and inclusive. Please read and follow our [Code of Conduct](#coc).
-
 ### <a name="question"></a> Got a Question or Problem?
 
-For general support questions, please check our documentation or feel free to reach out through our community channels. GitHub Issues should be reserved for bug reports and feature requests.
+For general support questions, please check our documentation or feel free to reach out through our community channels.You can join our Discord channel for real-time discussions and support.[Join our Discord]( https://discord.gg/gZt4ws4MJW)
+
+GitHub Issues should be reserved for bug reports and feature requests.
 
 ### <a name="issue"></a> Found an Issue or Bug?
 
@@ -83,13 +80,10 @@ Before submitting your Pull Request, consider the following:
 
 Thank you for contributing to Life Matters! Together, we can make a difference.
 
-[contribute.coc]: CONTRIBUTING.md#coc
 [contribute.requests]: CONTRIBUTING.md#requests
 [contribute.question]: CONTRIBUTING.md#question
 [contribute.issue]: CONTRIBUTING.md#issue
 [contribute.feature]: CONTRIBUTING.md#feature
 [contribute.docs]: CONTRIBUTING.md#docs
-[contribute.updating]: CONTRIBUTING.md#updating
 [contribute.submit]: CONTRIBUTING.md#submit
 [contribute.submitpr]: CONTRIBUTING.md#submit-pr
-[dcohow]: https://github.com/probot/dco#how-it-works
