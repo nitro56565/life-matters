@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: '*',
+  origin: '*', //all routes allowed to hit api request
   methods: ["GET", "POST"],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
