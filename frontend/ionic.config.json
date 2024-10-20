@@ -1,0 +1,7 @@
+{
+  "name": "life-matters-ionic2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

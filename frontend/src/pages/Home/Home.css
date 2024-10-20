@@ -1,0 +1,28 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 86%;
+    justify-content: center;
+  }
+  
+  .home-logo {
+    max-width: 300px; /* Adjust the size of the logo as needed */
+    scale: 1.5;
+  }
+  
+  .home-buttons {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  
+  .custom-button {
+    --background: #7326f1;
+    --border-radius: 50px;
+    font-weight: bold;
+    padding: 12px 28px;
+  }
+  

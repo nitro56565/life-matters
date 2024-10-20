@@ -1,0 +1,36 @@
+.logout-btn {
+    text-align: right;
+    margin-bottom: 16px;
+  }
+  
+  .info-grid {
+    margin-bottom: 16px;
+  }
+  
+  .route-grid {
+    margin-bottom: 16px;
+  }
+  
+  .location-icon {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+  }
+  
+  .map-container {
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    margin-top: 16px;
+    height: 370px;
+  }
+  
+  .map-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: #888;
+  }  
