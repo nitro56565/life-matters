@@ -12,11 +12,12 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: '*', //all routes allowed to hit api request
-  methods: ["GET", "POST"],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  origin: "*", // Allow this specific origin
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS", // Allow necessary methods
+  credentials: true // If you are using cookies or authorization headers
 }));
+
+app.options('*', cors());
 app.use('/api/ambulance', ambulanceRoutes);
 app.use('/api/trafficpolice', trafficPoliceRoutes)
 
