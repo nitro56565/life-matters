@@ -1,0 +1,63 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Node dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Capacitor platforms (Android and iOS)
+android/
+ios/
+
+# Build output
+/www
+/build
+/dist
+
+# Capacitor config files (Optional: if you don't want to commit generated configs)
+/capacitor.config.json
+/capacitor.config.ts
+
+# Testing coverage output
+/coverage
+
+# Environment variable files
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Optional eslint cache
+.eslintcache
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# macOS
+.DS_Store
+
+# IDEs and editors
+/.vscode/*
+!/.vscode/extensions.json
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Optional: .nx for Nx workspace
+/.nx
+/.nx/cache
+
+# Lint/formatting output
+/stylelintcache
+.prettiercache
