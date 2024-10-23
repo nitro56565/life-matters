@@ -26,12 +26,14 @@ const ForgotPassword: React.FC = () => {
     setOtp(newOtp);
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (event: React.MouseEvent<HTMLIonButtonElement>) => {
+    event.preventDefault(); 
     if (!isOtpRequested) {
       setIsOtpRequested(true);
     } else {
     }
   };
+
 
   return (
     <IonPage>
@@ -75,7 +77,7 @@ const ForgotPassword: React.FC = () => {
                 </IonGrid>
               )}
               <IonButton
-                type="submit"
+                type="button"
                 expand="block"
                 className="forgot-password-button"
                 onClick={handleButtonClick}
