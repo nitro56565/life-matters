@@ -59,7 +59,7 @@ const SignIn: React.FC<SignInProps> = ({
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
 
-        setSuccessMessage("Sign-in successful! Redirecting...");
+        setSuccessMessage("Sign-in successful! Redirecting...")
         setTimeout(() => {
           router.push(redirectUrl, "root", "replace");
         }, 2000);
