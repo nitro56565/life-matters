@@ -24,10 +24,7 @@ const SignIn: React.FC<SignInProps> = ({
   signupLink,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    phone: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ phone: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const router = useIonRouter();
@@ -48,15 +45,10 @@ const SignIn: React.FC<SignInProps> = ({
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const attemptSignIn = async () => {
-    console.log("Form Data:", formData);
-
     const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
 
     try {
@@ -71,17 +63,13 @@ const SignIn: React.FC<SignInProps> = ({
         setTimeout(() => {
           router.push(redirectUrl, "root", "replace");
         }, 2000);
-        return true;
       } else {
         setErrorMessage(
           response.data.message || "Sign-in failed. Please try again."
         );
-        return false;
       }
     } catch (err) {
-      console.error("Error during sign-in:", err);
       setErrorMessage("An error occurred during sign-in. Please try again.");
-      return false;
     }
   };
 
@@ -90,16 +78,7 @@ const SignIn: React.FC<SignInProps> = ({
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Capture the latest state of formData before sign-in attempt
-    const { phone, password } = formData;
-    console.log("Form Data before sending:", { phone, password });
-
-    // Attempt sign-in
-    const signInSuccessful = await attemptSignIn();
-
-    if (!signInSuccessful) {
-      setErrorMessage("Sign-in failed. Please try again.");
-    }
+    await attemptSignIn();
   };
 
   return (
@@ -125,7 +104,7 @@ const SignIn: React.FC<SignInProps> = ({
                   value={formData.phone}
                   onIonChange={handleChange}
                   required
-                ></IonInput>
+                />
               </IonItem>
               <IonItem className="signin-item">
                 <IonInput

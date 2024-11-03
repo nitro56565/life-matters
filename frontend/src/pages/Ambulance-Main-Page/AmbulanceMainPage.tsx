@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { GoogleMap } from "@react-google-maps/api"; // No need for useLoadScript anymore
 import {
   IonPage,
@@ -34,11 +34,35 @@ const AmbulanceMainPage = () => {
     }
   }, []);
 
-  const logout = (event: any) => {
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const userType = localStorage.getItem("userType");
+
+    if (!token && !userType) {
+      router.push("/", "root", "replace");
+    }
+  }, [router]);
+
+  const logout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userType");
-    router.push("/ambulance-signin");
+
+    // Confirm logout with the user (optional)
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (!confirmLogout) return;
+
+    try {
+      // Clear authentication tokens or any other user data in local storage
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userType");
+
+      // Optionally clear app state here, e.g., any Redux or Context state
+
+      // Redirect the user after clearing the local storage
+      router.push("/ambulance-signin", "root", "replace");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Optionally, show a toast or alert to inform the user of the issue
+    }
   };
 
   return (
@@ -101,6 +125,7 @@ const AmbulanceMainPage = () => {
           {/* Map Display */}
           <div className="map-container">
             <GoogleMap
+              id="map"
               mapContainerStyle={containerStyle}
               center={center}
               zoom={6}
