@@ -1,36 +1,94 @@
-.logout-btn {
-    text-align: right;
-    margin-bottom: 16px;
-  }
-  
-  .info-grid {
-    margin-bottom: 16px;
-  }
-  
-  .route-grid {
-    margin-bottom: 16px;
-  }
-  
-  .location-icon {
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-  }
-  
-  .map-container {
-    border: 1px solid #d1d1d1;
-    border-radius: 8px;
-    margin-top: 16px;
-    height: 370px;
-  }
-  
-  .map-placeholder {
-    width: 100%;
-    height: 100%;
-    background-color: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2rem;
-    color: #888;
-  }  
+/* Container styling */
+.container {
+  margin: 0 auto;
+  padding: 1rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Title styling */
+.title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  color: #7326f1;
+  margin: 0.5rem 0;
+}
+
+/* Map container styling */
+.map-container {
+  flex-grow: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  height: 40vh; /* Map size adjusted for screen */
+}
+
+.GoogleMap {
+  height: 100%;
+}
+
+/* Logout button styling */
+.logout-container {
+  text-align: right;
+  margin: 1rem;
+}
+
+.logout-button {
+  font-size: 0.875rem;
+  background-color: #ef4444;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+}
+
+/* Button container styling */
+.button-container {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.locate-icon {
+  color: black;
+  font-size: 2rem;
+  cursor: pointer !important;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.route-button,
+.start-button {
+  background-color: #7326f1;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+}
+
+/* Input container styling */
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.input-box {
+  --background: white;
+}
+
+.input-label {
+  color: black;
+  font-weight: bold;
+}
+
+.input-list {
+  padding: 0;
+  margin: 0;
+}

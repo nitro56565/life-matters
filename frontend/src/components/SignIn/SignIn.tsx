@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import axios from "axios";
-import { useHistory } from "react-router-dom";
+import { useIonRouter } from "@ionic/react";
 import {
   IonButton,
   IonContent,
@@ -11,6 +11,7 @@ import {
   IonText,
 } from "@ionic/react";
 import "./SignIn.css";
+
 interface SignInProps {
   apiEndpoint: string;
   redirectUrl: string;
@@ -29,22 +30,17 @@ const SignIn: React.FC<SignInProps> = ({
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const history = useHistory();
+  const router = useIonRouter();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // Check if user is already logged in on component mount
   useEffect(() => {
-    // const token = localStorage.getItem("authToken");
-    // const userType = localStorage.getItem("userType");
+    const token = localStorage.getItem("authToken");
+    const userType = localStorage.getItem("userType");
 
-    // if (token && userType) {
-    //   if (userType === "ambulance") {
-    //     history.push("/ambulance-home");
-    //   } else if (userType === "traffic-police") {
-    //     history.push("/trafficpolice-home");
-    //   }
-    // }
-  }, [history]);
+    if (token && userType) {
+      router.push(redirectUrl, "root", "replace");
+    }
+  }, [router, redirectUrl]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -68,19 +64,12 @@ const SignIn: React.FC<SignInProps> = ({
 
       if (response.status === 200) {
         const { token, userType } = response.data;
-
-        // Store the token and user type in localStorage
-        // localStorage.setItem("authToken", token);
-        // localStorage.setItem("userType", userType);
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("userType", userType);
 
         setSuccessMessage("Sign-in successful! Redirecting...");
         setTimeout(() => {
-          // Redirect to the appropriate dashboard
-          if (userType === "ambulance") {
-            history.push("/ambulance-home");
-          } else if (userType === "traffic-police") {
-            history.push("/trafficpolice-home");
-          }
+          router.push(redirectUrl, "root", "replace");
         }, 2000);
         return true;
       } else {
@@ -131,7 +120,7 @@ const SignIn: React.FC<SignInProps> = ({
                   label="Enter your phone number"
                   labelPlacement="floating"
                   type="number"
-                  class="signin-input phone-input"
+                  className="signin-input phone-input"
                   name="phone"
                   value={formData.phone}
                   onIonChange={handleChange}
@@ -142,9 +131,8 @@ const SignIn: React.FC<SignInProps> = ({
                 <IonInput
                   label="Enter your password"
                   labelPlacement="floating"
-                  class="signin-input password-input"
-                  // type={showPassword ? "text" : "password"}
-                  type="password"
+                  className="signin-input password-input"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onIonChange={handleChange}
