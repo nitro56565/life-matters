@@ -1,5 +1,5 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { GoogleMap } from "@react-google-maps/api"; // No need for useLoadScript anymore
+import React, { useEffect, useState } from "react";
+import { GoogleMap } from "@react-google-maps/api";
 import {
   IonPage,
   IonContent,
@@ -25,14 +25,15 @@ const center = {
 
 const AmbulanceMainPage = () => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [error, setError] = useState<string | null>(null); // Added error state
   const router = useIonRouter();
 
   useEffect(() => {
-    // Check if google maps has loaded
     if (!window.google) {
-      console.error("Google Maps JavaScript API not loaded");
+      setError("Google Maps JavaScript API not loaded");
+      console.error(error);
     }
-  }, []);
+  }, [error]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -45,24 +46,12 @@ const AmbulanceMainPage = () => {
 
   const logout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-
-    // Confirm logout with the user (optional)
     const confirmLogout = window.confirm("Are you sure you want to log out?");
     if (!confirmLogout) return;
 
-    try {
-      // Clear authentication tokens or any other user data in local storage
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userType");
-
-      // Optionally clear app state here, e.g., any Redux or Context state
-
-      // Redirect the user after clearing the local storage
-      router.push("/ambulance-signin", "root", "replace");
-    } catch (error) {
-      console.error("Logout failed:", error);
-      // Optionally, show a toast or alert to inform the user of the issue
-    }
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userType");
+    router.push("/ambulance-signin", "root", "replace");
   };
 
   return (
@@ -71,7 +60,7 @@ const AmbulanceMainPage = () => {
         <div className="container">
           <h1 className="title">Ambulance Portal</h1>
 
-          {/* Source - Destination */}
+          {/* Source - Destination Inputs */}
           <div className="input-container">
             <IonList className="input-list" style={{ background: "white" }}>
               <IonItem lines="none" className="input-box">
@@ -85,7 +74,7 @@ const AmbulanceMainPage = () => {
                     slot="start"
                     icon={location}
                     aria-hidden="true"
-                  ></IonIcon>
+                  />
                 </IonInput>
               </IonItem>
             </IonList>
@@ -101,7 +90,7 @@ const AmbulanceMainPage = () => {
                     slot="start"
                     icon={location}
                     aria-hidden="true"
-                  ></IonIcon>
+                  />
                 </IonInput>
               </IonItem>
             </IonList>
@@ -133,6 +122,9 @@ const AmbulanceMainPage = () => {
               options={{ gestureHandling: "greedy" }}
             />
           </div>
+
+          {/* Error Message (Optional) */}
+          {error && <div style={{ color: 'red' }}>{error}</div>}
         </div>
       </IonContent>
     </IonPage>
