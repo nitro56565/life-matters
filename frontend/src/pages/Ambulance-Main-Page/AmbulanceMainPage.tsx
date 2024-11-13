@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  DirectionsRenderer,
+  useLoadScript,
+} from "@react-google-maps/api";
 import {
   IonPage,
   IonContent,
@@ -23,14 +28,17 @@ const center = {
   lng: 73.856255,
 };
 
-const libraries = ["places"];
+const libraries = ["places", "directions"];
 
 const AmbulanceMainPage = () => {
   const [map, setMap] = useState<any>(null);
   const [sourceMarker, setSourceMarker] = useState<any>(null);
   const [destinationMarker, setDestinationMarker] = useState<any>(null);
+  const [directions, setDirections] = useState<any>(null); // State for storing directions
   const [error, setError] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<any>(null); // State for current location
+  const [distance, setDistance] = useState(""); // Distance state
+  const [duration, setDuration] = useState(""); // Duration state
   const router = useIonRouter();
 
   const { isLoaded, loadError } = useLoadScript({
@@ -47,41 +55,49 @@ const AmbulanceMainPage = () => {
       console.error(loadError);
     }
 
-    if (!localStorage.getItem("authToken") && !localStorage.getItem("userType")) {
+    if (
+      !localStorage.getItem("authToken") &&
+      !localStorage.getItem("userType")
+    ) {
       router.push("/", "root", "replace");
     }
   }, [loadError, router]);
 
   const fetchCurrentLocation = async () => {
     try {
-      const position = await Geolocation.getCurrentPosition();
-      const { latitude, longitude } = position.coords;
-
-      // Set the current location in the state
-      setCurrentLocation({ lat: latitude, lng: longitude });
-
-      // Update source input field with the coordinates
-      if (sourceRef.current) {
-        sourceRef.current.value = `${latitude}, ${longitude}`;
-      }
-
-      // Clear any existing source marker
-      if (sourceMarker) {
-        sourceMarker.setMap(null);
-      }
-
-      // Set new source marker at current location
-      const newSourceMarker = new window.google.maps.Marker({
-        position: { lat: latitude, lng: longitude },
-        map,
-        title: "Current Location",
+      let position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true, // Provides a more accurate position
       });
-      setSourceMarker(newSourceMarker);
+      // Request permissions
+      const permission = await Geolocation.requestPermissions();
 
-      // Pan map to current location
-      map.panTo(new window.google.maps.LatLng(latitude, longitude));
+      if (permission.location === "granted") {
+        position = await Geolocation.getCurrentPosition();
+        const { latitude, longitude } = position.coords;
+
+        setCurrentLocation({ lat: latitude, lng: longitude });
+
+        if (sourceRef.current) {
+          sourceRef.current.value = `${latitude}, ${longitude}`;
+        }
+
+        if (sourceMarker) {
+          sourceMarker.setMap(null);
+        }
+
+        const newSourceMarker = new window.google.maps.Marker({
+          position: { lat: latitude, lng: longitude },
+          map,
+          title: "Current Location",
+        });
+        setSourceMarker(newSourceMarker);
+
+        map.panTo(new window.google.maps.LatLng(latitude, longitude));
+      } else {
+        setError("Location permission denied.");
+      }
     } catch (error) {
-      console.error("Error getting location", error);
+      console.error("Error getting location:", error);
       setError("Failed to get current location");
     }
   };
@@ -96,10 +112,10 @@ const AmbulanceMainPage = () => {
           sourceInput,
           { types: ["geocode"] }
         );
-        const destinationAutocomplete = new window.google.maps.places.Autocomplete(
-          destinationInput,
-          { types: ["geocode"] }
-        );
+        const destinationAutocomplete =
+          new window.google.maps.places.Autocomplete(destinationInput, {
+            types: ["geocode"],
+          });
 
         sourceAutocomplete.addListener("place_changed", () => {
           const place = sourceAutocomplete.getPlace();
@@ -142,6 +158,50 @@ const AmbulanceMainPage = () => {
     initializeAutocomplete();
   }, [isLoaded, map, sourceMarker, destinationMarker]);
 
+  const calculateRoute = () => {
+    if (sourceMarker && destinationMarker) {
+      const directionsService = new window.google.maps.DirectionsService();
+      const request = {
+        origin: sourceMarker.getPosition(),
+        destination: destinationMarker.getPosition(),
+        travelMode: window.google.maps.TravelMode.DRIVING, // You can choose other modes if necessary
+        unitSystem: window.google.maps.UnitSystem.METRIC,
+      };
+
+      directionsService.route(request, (result, status) => {
+        if (status === "OK") {
+          setDirections(result);
+          // Extract distance and duration from the result
+          const route = result.routes[0].legs[0];
+          setDistance(route.distance.text);
+          setDuration(route.duration.text);
+        } else {
+          setError("Directions request failed due to " + status);
+        }
+      });
+    }
+  };
+
+  const handleStartTrip = () => {
+    // Ensure that both source and destination markers are set
+    if (sourceMarker && destinationMarker) {
+      // Get the coordinates of source and destination
+      const sourceCoords = sourceMarker.getPosition();
+      const destinationCoords = destinationMarker.getPosition();
+
+      // Construct the Google Maps URL
+      const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${sourceCoords.lat()},${sourceCoords.lng()}&destination=${destinationCoords.lat()},${destinationCoords.lng()}`;
+
+      // Open the Google Maps URL in a new tab
+      window.open(googleMapsUrl, "_blank");
+    } else {
+      // Show an error if source or destination is missing
+      setError(
+        "Please set both source and destination before starting the trip."
+      );
+    }
+  };
+
   const logout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const confirmLogout = window.confirm("Are you sure you want to log out?");
@@ -153,7 +213,7 @@ const AmbulanceMainPage = () => {
   };
 
   if (!isLoaded) return <div>Loading Maps...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
 
   return (
     <IonPage>
@@ -201,16 +261,24 @@ const AmbulanceMainPage = () => {
 
           <div className="button-container">
             <div>
-              <IonIcon 
-                onClick={fetchCurrentLocation} 
-                className="locate-icon" icon={locate} />
+              <IonIcon
+                onClick={fetchCurrentLocation}
+                className="locate-icon"
+                icon={locate}
+              />
             </div>
-            <button className="route-button">Show Route</button>
-            <button className="start-button">Start</button>
+            <button className="route-button" onClick={calculateRoute}>
+              Show Route
+            </button>
+            <button onClick={handleStartTrip} className="start-button">
+              Start
+            </button>
           </div>
 
           {/* Logout Button */}
           <div className="logout-container">
+            <p>Duration: {duration}</p>
+            <p>Distance: {distance}</p>
             <button onClick={logout} className="logout-button">
               Logout
             </button>
@@ -227,6 +295,10 @@ const AmbulanceMainPage = () => {
               options={{ gestureHandling: "greedy" }}
             >
               {sourceMarker && <Marker position={sourceMarker.getPosition()} />}
+              {destinationMarker && (
+                <Marker position={destinationMarker.getPosition()} />
+              )}
+              {directions && <DirectionsRenderer directions={directions} />}
             </GoogleMap>
           </div>
         </div>

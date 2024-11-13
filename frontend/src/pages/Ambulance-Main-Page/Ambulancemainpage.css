@@ -34,6 +34,9 @@
 .logout-container {
   text-align: right;
   margin: 1rem;
+  color: black;
+  display: flex;
+  justify-content: space-between;
 }
 
 .logout-button {
@@ -95,4 +98,41 @@
 
 #map {
   height: 100% !important;
+}
+
+.route-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+.clear-route-btn {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.route-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.current-location-img {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+}
+
+.route-btn {
+  width: 100%;
+  background-color: #7326F1;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
 }

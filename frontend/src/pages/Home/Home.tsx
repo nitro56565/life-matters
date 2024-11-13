@@ -1,6 +1,12 @@
 import React, { useEffect } from "react";
-import { IonButton, IonContent, IonImg, IonPage, useIonRouter } from "@ionic/react";
-import { App } from '@capacitor/app';
+import {
+  IonButton,
+  IonContent,
+  IonImg,
+  IonPage,
+  useIonRouter,
+} from "@ionic/react";
+import { App } from "@capacitor/app";
 import "./Home.css";
 
 const Home: React.FC = () => {
@@ -13,7 +19,7 @@ const Home: React.FC = () => {
     };
 
     // Add back button event listener
-    document.addEventListener('backbutton', handleBackButton);
+    document.addEventListener("backbutton", handleBackButton);
 
     if (window.google && window.google.maps) {
       // Only run map initialization if google maps is available
@@ -29,7 +35,7 @@ const Home: React.FC = () => {
 
     // Cleanup the event listener on component unmount
     return () => {
-      document.removeEventListener('backbutton', handleBackButton);
+      document.removeEventListener("backbutton", handleBackButton);
     };
   }, [router]);
 
