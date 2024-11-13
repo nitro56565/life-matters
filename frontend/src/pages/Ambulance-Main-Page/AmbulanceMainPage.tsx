@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { GoogleMap } from "@react-google-maps/api";
+import React, { useEffect, useRef, useState } from "react";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import {
   IonPage,
   IonContent,
-  IonButton,
   IonIcon,
   IonInput,
   IonItem,
@@ -11,6 +10,7 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { locate, location } from "ionicons/icons";
+import { Geolocation } from "@capacitor/geolocation"; // Import Geolocation
 import "./Ambulancemainpage.css";
 
 const containerStyle = {
@@ -23,26 +23,124 @@ const center = {
   lng: 73.856255,
 };
 
+const libraries = ["places"];
+
 const AmbulanceMainPage = () => {
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [error, setError] = useState<string | null>(null); // Added error state
+  const [map, setMap] = useState<any>(null);
+  const [sourceMarker, setSourceMarker] = useState<any>(null);
+  const [destinationMarker, setDestinationMarker] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<any>(null); // State for current location
   const router = useIonRouter();
 
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  const sourceRef = useRef<HTMLIonInputElement | null>(null);
+  const destinationRef = useRef<HTMLIonInputElement | null>(null);
+
   useEffect(() => {
-    if (!window.google) {
-      setError("Google Maps JavaScript API not loaded");
-      console.error(error);
+    if (loadError) {
+      setError("Google Maps API could not be loaded.");
+      console.error(loadError);
     }
-  }, [error]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const userType = localStorage.getItem("userType");
-
-    if (!token && !userType) {
+    if (!localStorage.getItem("authToken") && !localStorage.getItem("userType")) {
       router.push("/", "root", "replace");
     }
-  }, [router]);
+  }, [loadError, router]);
+
+  const fetchCurrentLocation = async () => {
+    try {
+      const position = await Geolocation.getCurrentPosition();
+      const { latitude, longitude } = position.coords;
+
+      // Set the current location in the state
+      setCurrentLocation({ lat: latitude, lng: longitude });
+
+      // Update source input field with the coordinates
+      if (sourceRef.current) {
+        sourceRef.current.value = `${latitude}, ${longitude}`;
+      }
+
+      // Clear any existing source marker
+      if (sourceMarker) {
+        sourceMarker.setMap(null);
+      }
+
+      // Set new source marker at current location
+      const newSourceMarker = new window.google.maps.Marker({
+        position: { lat: latitude, lng: longitude },
+        map,
+        title: "Current Location",
+      });
+      setSourceMarker(newSourceMarker);
+
+      // Pan map to current location
+      map.panTo(new window.google.maps.LatLng(latitude, longitude));
+    } catch (error) {
+      console.error("Error getting location", error);
+      setError("Failed to get current location");
+    }
+  };
+
+  useEffect(() => {
+    const initializeAutocomplete = async () => {
+      if (isLoaded && sourceRef.current && destinationRef.current) {
+        const sourceInput = await sourceRef.current.getInputElement();
+        const destinationInput = await destinationRef.current.getInputElement();
+
+        const sourceAutocomplete = new window.google.maps.places.Autocomplete(
+          sourceInput,
+          { types: ["geocode"] }
+        );
+        const destinationAutocomplete = new window.google.maps.places.Autocomplete(
+          destinationInput,
+          { types: ["geocode"] }
+        );
+
+        sourceAutocomplete.addListener("place_changed", () => {
+          const place = sourceAutocomplete.getPlace();
+          if (place.geometry && place.geometry.location) {
+            // Clear previous source marker
+            if (sourceMarker) {
+              sourceMarker.setMap(null);
+            }
+            // Set new source marker
+            const newSourceMarker = new window.google.maps.Marker({
+              position: place.geometry.location,
+              map,
+              title: "Source",
+            });
+            setSourceMarker(newSourceMarker);
+            map.panTo(place.geometry.location);
+          }
+        });
+
+        destinationAutocomplete.addListener("place_changed", () => {
+          const place = destinationAutocomplete.getPlace();
+          if (place.geometry && place.geometry.location) {
+            // Clear previous destination marker
+            if (destinationMarker) {
+              destinationMarker.setMap(null);
+            }
+            // Set new destination marker
+            const newDestinationMarker = new window.google.maps.Marker({
+              position: place.geometry.location,
+              map,
+              title: "Destination",
+            });
+            setDestinationMarker(newDestinationMarker);
+            map.panTo(place.geometry.location);
+          }
+        });
+      }
+    };
+
+    initializeAutocomplete();
+  }, [isLoaded, map, sourceMarker, destinationMarker]);
 
   const logout = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -53,6 +151,9 @@ const AmbulanceMainPage = () => {
     localStorage.removeItem("userType");
     router.push("/ambulance-signin", "root", "replace");
   };
+
+  if (!isLoaded) return <div>Loading Maps...</div>;
+  if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
     <IonPage>
@@ -65,6 +166,7 @@ const AmbulanceMainPage = () => {
             <IonList className="input-list" style={{ background: "white" }}>
               <IonItem lines="none" className="input-box">
                 <IonInput
+                  ref={sourceRef}
                   labelPlacement="stacked"
                   label="Source"
                   className="input-label"
@@ -81,6 +183,7 @@ const AmbulanceMainPage = () => {
             <IonList className="input-list" style={{ background: "white" }}>
               <IonItem lines="none" className="input-box">
                 <IonInput
+                  ref={destinationRef}
                   labelPlacement="stacked"
                   label="Destination"
                   className="input-label"
@@ -98,7 +201,9 @@ const AmbulanceMainPage = () => {
 
           <div className="button-container">
             <div>
-              <IonIcon className="locate-icon" icon={locate} />
+              <IonIcon 
+                onClick={fetchCurrentLocation} 
+                className="locate-icon" icon={locate} />
             </div>
             <button className="route-button">Show Route</button>
             <button className="start-button">Start</button>
@@ -120,11 +225,10 @@ const AmbulanceMainPage = () => {
               zoom={6}
               onLoad={(mapInstance) => setMap(mapInstance)}
               options={{ gestureHandling: "greedy" }}
-            />
+            >
+              {sourceMarker && <Marker position={sourceMarker.getPosition()} />}
+            </GoogleMap>
           </div>
-
-          {/* Error Message (Optional) */}
-          {error && <div style={{ color: 'red' }}>{error}</div>}
         </div>
       </IonContent>
     </IonPage>
