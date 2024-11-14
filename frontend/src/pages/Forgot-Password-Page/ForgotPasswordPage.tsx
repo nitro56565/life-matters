@@ -3,21 +3,34 @@ import {
   IonButton,
   IonInput,
   IonItem,
-  IonContent,
   IonPage,
   IonGrid,
   IonRow,
   IonCol,
+  IonText,
 } from "@ionic/react";
+import { useHistory } from "react-router-dom";
 import "./ForgotPasswordPage.css";
 
 const ForgotPassword: React.FC = () => {
+  const history = useHistory();
   const [isOtpRequested, setIsOtpRequested] = useState(false);
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(Array(6).fill(""));
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^\d+$/;
+    return phoneRegex.test(phone);
+  };
 
   const handleRequestOtp = () => {
-    setIsOtpRequested(true);
+    if (validatePhone(phone)) {
+      setPhoneError(null); 
+      setIsOtpRequested(true);
+    } else {
+      setPhoneError("Please enter a valid 10-digit phone number.");
+    }
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -27,17 +40,18 @@ const ForgotPassword: React.FC = () => {
   };
 
   const handleButtonClick = (event: React.MouseEvent<HTMLIonButtonElement>) => {
-    event.preventDefault(); 
+    event.preventDefault();
     if (!isOtpRequested) {
-      setIsOtpRequested(true);
+      handleRequestOtp(); 
     } else {
+      if (otp.length==6) {
+        history.push("/set-new-password");
+      }
     }
   };
 
-
   return (
     <IonPage>
-      <IonContent className="ion-padding" fullscreen>
         <div className="forgot-password-container">
           <div className="forgot-password-card">
             <div className="forgot-password-header">
@@ -45,31 +59,34 @@ const ForgotPassword: React.FC = () => {
             </div>
             <form>
               {!isOtpRequested ? (
-                <IonItem className="forgot-password-item">
-                  <IonInput
-                    label="Enter your phone number"
-                    labelPlacement="floating"
-                    type="number"
-                    className="forgot-password-input phone-input"
-                    name="phone"
-                    value={phone}
-                    onIonChange={(e) => setPhone(e.detail.value!)}
-                    required
-                  ></IonInput>
-                </IonItem>
+                <>
+                  <IonItem className="forgot-password-item">
+                    <IonInput
+                      label="Enter your phone number"
+                      labelPlacement="floating"
+                      type="tel"
+                      className="forgot-password-input phone-input"
+                      name="phone"
+                      value={phone}
+                      maxlength={10}
+                      onIonChange={(e) => setPhone(e.detail.value!)}
+                      required
+                    />
+                  </IonItem>
+                  {phoneError && <IonText color="danger">{phoneError}</IonText>}
+                </>
               ) : (
                 <IonGrid>
-                  <IonRow>
+                  <IonRow className="otp-row">
                     {otp.map((value, index) => (
-                      <IonCol key={index}>
+                      <IonCol key={index} className="otp-col">
                         <IonInput
-                          type="number"
+                          type="tel"
                           value={value}
-                          onIonChange={(e) =>
-                            handleOtpChange(index, e.detail.value!)
-                          }
+                          onIonChange={(e) => handleOtpChange(index, e.detail.value!)}
                           maxlength={1}
-                          className="forgot-password-input phone-input"
+                          className="forgot-password-input otp-input"
+                          inputMode="numeric"
                         />
                       </IonCol>
                     ))}
@@ -85,7 +102,7 @@ const ForgotPassword: React.FC = () => {
                 {isOtpRequested ? "Validate OTP" : "Request OTP"}
               </IonButton>
               {isOtpRequested && (
-                <div className="forgot-password">
+                <div className="forgot-password-text">
                   Didn't receive any code?{" "}
                   <a href="/forgot-password">click here</a>
                 </div>
@@ -93,7 +110,6 @@ const ForgotPassword: React.FC = () => {
             </form>
           </div>
         </div>
-      </IonContent>
     </IonPage>
   );
 };

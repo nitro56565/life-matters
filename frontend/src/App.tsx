@@ -35,6 +35,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import SetNewPassword from './pages/set-new-password/SetNewPasswordPage';
 
 setupIonicReact();
 
@@ -66,6 +67,9 @@ const App: React.FC = () => (
         </Route>
         <Route exact path="/forgot-password">
           <ForgotPassword/>
+        </Route>
+        <Route exact path="/set-new-password">
+          <SetNewPassword/>
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
