@@ -15,7 +15,7 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { locate, location } from "ionicons/icons";
-import { Geolocation } from "@capacitor/geolocation"; // Import Geolocation
+import { Geolocation } from "@capacitor/geolocation";
 import "./Ambulancemainpage.css";
 
 const containerStyle = {
@@ -164,17 +164,33 @@ const AmbulanceMainPage = () => {
       const request = {
         origin: sourceMarker.getPosition(),
         destination: destinationMarker.getPosition(),
-        travelMode: window.google.maps.TravelMode.DRIVING, // You can choose other modes if necessary
+        travelMode: window.google.maps.TravelMode.DRIVING,
         unitSystem: window.google.maps.UnitSystem.METRIC,
       };
 
       directionsService.route(request, (result, status) => {
         if (status === "OK") {
           setDirections(result);
-          // Extract distance and duration from the result
+
+          // Extract distance and duration
           const route = result.routes[0].legs[0];
           setDistance(route.distance.text);
           setDuration(route.duration.text);
+
+          // Extract high-density route points
+          const highDensityPoints = route.steps.flatMap((step, stepIndex) =>
+            step.path.map((point, pointIndex) => ({
+              id: `${stepIndex}-${pointIndex}`, // Unique ID for each point
+              lat: point.lat(),
+              lng: point.lng(),
+            }))
+          );
+
+          // Log the high-density points
+          console.log("High-density route points:", highDensityPoints);
+
+          // Optionally, set these points to state if you need them elsewhere
+          // setRoutePoints(highDensityPoints);
         } else {
           setError("Directions request failed due to " + status);
         }
