@@ -24,13 +24,22 @@ const SignIn: React.FC<SignInProps> = ({
   signupLink,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ phone: "", password: "" });
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "error" | "success";
+  } | null>(null);
+  const [isFormValid, setIsFormValid] = useState(true); // Track form validation
   const router = useIonRouter();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
+    if (!BACKEND_URL) {
+      console.error("BACKEND_URL is not defined in the environment variables.");
+      return;
+    }
+
     const token = localStorage.getItem("authToken");
     const userType = localStorage.getItem("userType");
 
@@ -40,44 +49,72 @@ const SignIn: React.FC<SignInProps> = ({
   }, [router, redirectUrl]);
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setShowPassword((prev) => !prev);
   };
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  const validatePhone = (phone: string) => {
+    // Validate phone: Should be exactly 10 digits and contain only numbers
+    return /^\d{10}$/.test(phone);
   };
 
   const attemptSignIn = async () => {
-    const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
+    if (!BACKEND_URL) return;
 
     try {
-      const response = await axios.post(apiUrl, formData);
+      const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
+      const response = await axios.post(apiUrl, { phone, password });
 
       if (response.status === 200) {
         const { token, userType } = response.data;
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
 
-        setSuccessMessage("Sign-in successful! Redirecting...")
+        setMessage({
+          text: "Sign-in successful! Redirecting...",
+          type: "success",
+        });
         setTimeout(() => {
           router.push(redirectUrl, "root", "replace");
         }, 2000);
       } else {
-        setErrorMessage(
-          response.data.message || "Sign-in failed. Please try again."
-        );
+        setMessage({
+          text: response.data.message || "Sign-in failed. Please try again.",
+          type: "error",
+        });
       }
-    } catch (err) {
-      setErrorMessage("An error occurred during sign-in. Please try again.");
+    } catch {
+      setMessage({
+        text: "An error occurred during sign-in. Please try again.",
+        type: "error",
+      });
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setErrorMessage("");
-    setSuccessMessage("");
+    setMessage(null);
+    // console.log(phone, password);
 
+    // Validate phone number and password
+    if (!validatePhone(phone)) {
+      setIsFormValid(false);
+      setMessage({
+        text: "Please enter a valid 10-digit phone number.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!password) {
+      setIsFormValid(false);
+      setMessage({
+        text: "Password is required.",
+        type: "error",
+      });
+      return;
+    }
+
+    setIsFormValid(true);
     await attemptSignIn();
   };
 
@@ -89,42 +126,53 @@ const SignIn: React.FC<SignInProps> = ({
             <div className="signin-header">
               <h1>Sign In</h1>
             </div>
-            {errorMessage && <IonText color="danger">{errorMessage}</IonText>}
-            {successMessage && (
-              <IonText color="success">{successMessage}</IonText>
+            {message && (
+              <IonText
+                color={message.type === "success" ? "success" : "danger"}
+              >
+                {message.text}
+              </IonText>
             )}
             <form onSubmit={handleSubmit}>
               <IonItem className="signin-item">
                 <IonInput
-                  label="Enter your phone number"
+                  label="Phone Number"
                   labelPlacement="floating"
                   type="number"
                   className="signin-input phone-input"
                   name="phone"
-                  value={formData.phone}
-                  onIonChange={handleChange}
+                  value={phone}
+                  onIonInput={(e) => {
+                    const newPhone = (
+                      e.target as unknown as HTMLInputElement
+                    ).value.replace(/\D/g, "");
+                    if (newPhone.length <= 10) setPhone(newPhone);
+                  }}
                   required
                 />
               </IonItem>
               <IonItem className="signin-item">
                 <IonInput
-                  label="Enter your password"
+                  label="Password"
                   labelPlacement="floating"
-                  className="signin-input password-input"
                   type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onIonChange={handleChange}
+                  className="signin-input"
+                  value={password}
+                  onIonInput={(e) =>
+                    setPassword((e.target as unknown as HTMLInputElement).value)
+                  }
                   required
                 />
-                <button
-                  type="button"
+                <IonButton
+                  fill="clear"
                   className="toggle-password"
                   onClick={togglePasswordVisibility}
+                  slot="end"
                 >
                   {showPassword ? <FiEye /> : <FiEyeOff />}
-                </button>
+                </IonButton>
               </IonItem>
+
               <div className="forgot-password">
                 <a href="/forgot-password">Forgot password?</a>
               </div>
