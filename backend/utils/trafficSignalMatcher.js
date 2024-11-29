@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const uri = "mongodb+srv://maheshpatil1612:nitro%40123@cluster0.1ofjgnt.mongodb.net/life-matters-db?retryWrites=true&w=majority&appName=Cluster0"; // Use environment variable for MongoDB URI
+const uri = process.env.MONGO_URL
 
 const client = new MongoClient(uri);
 
