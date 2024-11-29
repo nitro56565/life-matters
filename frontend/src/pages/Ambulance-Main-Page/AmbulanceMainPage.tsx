@@ -11,6 +11,7 @@ import {
 } from "@ionic/react";
 import { locate, location } from "ionicons/icons";
 import { Geolocation } from "@capacitor/geolocation";
+import { getSocket } from "../../components/Utils/socketService";
 import "./Ambulancemainpage.css";
 
 const containerStyle = {
@@ -36,6 +37,7 @@ const AmbulanceMainPage = () => {
 
   const sourceRef = useRef<HTMLIonInputElement | null>(null);
   const destinationRef = useRef<HTMLIonInputElement | null>(null);
+  const socket = getSocket();
 
   useEffect(() => {
     // Redirect if the user is not authenticated
@@ -45,7 +47,17 @@ const AmbulanceMainPage = () => {
     ) {
       router.push("/", "root", "replace");
     }
-  }, [router]);
+
+    // WebSocket event listeners
+    socket.on("traffic-signals-response", (data: any) => {
+      console.log("Traffic signals data received:", data);
+    });
+
+    return () => {
+      // Clean up WebSocket listeners
+      socket.off("traffic-signals-response");
+    };
+  }, [router, socket]);
 
   const fetchCurrentLocation = async () => {
     try {
@@ -156,12 +168,11 @@ const AmbulanceMainPage = () => {
               lng: point.lng(),
             }))
           );
+          console.log("Route sent successfully:");
+          
 
-          // Log the high-density points
-          console.log("High-density route points:", highDensityPoints);
-
-          // Optionally, set these points to state if you need them elsewhere
-          // setRoutePoints(highDensityPoints);
+          // Send the high-density route points to the backend via WebSocket
+          socket.emit("request-traffic-signals", highDensityPoints);
         } else {
           setError("Directions request failed due to " + status);
         }
@@ -271,7 +282,7 @@ const AmbulanceMainPage = () => {
               mapContainerStyle={containerStyle}
               center={center}
               zoom={6}
-              onLoad={(mapInstance) => setMap(mapInstance)}
+              onLoad={(mapInstance: any) => setMap(mapInstance)}
               options={{ gestureHandling: "greedy" }}
             >
               {sourceMarker && <Marker position={sourceMarker.getPosition()} />}
