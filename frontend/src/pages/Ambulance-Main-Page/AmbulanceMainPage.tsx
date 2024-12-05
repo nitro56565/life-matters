@@ -142,6 +142,17 @@ const AmbulanceMainPage = () => {
     initializeAutocomplete();
   }, [map, sourceMarker, destinationMarker]);
 
+  const interpolatePoints = (start, end, numPoints, baseIndex) => {
+    const latStep = (end.lat() - start.lat()) / numPoints;
+    const lngStep = (end.lng() - start.lng()) / numPoints;
+
+    return Array.from({ length: numPoints - 1 }, (_, i) => ({
+      id: `${baseIndex}-${i}`, // Generate ID based on the baseIndex
+      lat: start.lat() + latStep * (i + 1),
+      lng: start.lng() + lngStep * (i + 1),
+    }));
+  };
+
   const calculateRoute = () => {
     if (sourceMarker && destinationMarker) {
       const directionsService = new window.google.maps.DirectionsService();
@@ -160,18 +171,46 @@ const AmbulanceMainPage = () => {
           setDistance(route.distance.text);
           setDuration(route.duration.text);
 
-          // Extract high-density route points
-          const highDensityPoints = route.steps.flatMap((step, stepIndex) =>
-            step.path.map((point, pointIndex) => ({
-              id: `${stepIndex}-${pointIndex}`, // Unique ID for each point
-              lat: point.lat(),
-              lng: point.lng(),
-            }))
-          );
-          console.log("Route sent successfully:");
-          
+          // Counter for global unique ID
+          let pointCounter = 0;
 
-          // Send the high-density route points to the backend via WebSocket
+          // Extract high-density route points
+          const highDensityPoints = route.steps.flatMap((step) => {
+            const densePath = [];
+            for (let i = 0; i < step.path.length - 1; i++) {
+              const start = step.path[i];
+              const end = step.path[i + 1];
+              densePath.push({
+                id: `${pointCounter}`,
+                lat: start.lat(),
+                lng: start.lng(),
+              });
+              pointCounter++;
+
+              // Add interpolated points between start and end
+              const interpolated = interpolatePoints(
+                start,
+                end,
+                10,
+                pointCounter
+              );
+              densePath.push(...interpolated);
+
+              // Update pointCounter based on the number of interpolated points
+              pointCounter += interpolated.length;
+            }
+            // Push the last point
+            densePath.push({
+              id: `${pointCounter}`,
+              lat: step.path[step.path.length - 1].lat(),
+              lng: step.path[step.path.length - 1].lng(),
+            });
+            pointCounter++;
+            return densePath;
+          });
+
+          console.log(highDensityPoints);
+          console.log("Route sent successfully:");
           socket.emit("request-traffic-signals", highDensityPoints);
         } else {
           setError("Directions request failed due to " + status);

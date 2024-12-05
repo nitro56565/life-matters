@@ -4,8 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const uri = process.env.MONGO_URL
-
+const uri = process.env.MONGO_URL;
 const client = new MongoClient(uri);
 
 export async function findNearbyTrafficSignals(routePoints) {
@@ -31,52 +30,73 @@ export async function findNearbyTrafficSignals(routePoints) {
             [minLng, minLat], // Bottom-left corner of the bounding box
             [maxLng, maxLat]  // Top-right corner of the bounding box
         ];
+        console.log(bbox);
 
-        // Query MongoDB for traffic signals within the bounding box using an optimized query
-        const nearbySignals = await collection.find({
-            "features.geometry.coordinates": {
-                $geoWithin: {
-                    $box: bbox
+        // Aggregation pipeline to get signals in bounding box
+        const nearbySignals = await collection.aggregate([
+            {
+                $unwind: "$features"  // Unwind the features array
+            },
+            {
+                $match: {
+                    "features.geometry.coordinates": {
+                        $geoWithin: {
+                            $box: bbox  // Use the dynamic bounding box
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",  // Group by the original document _id
+                    features: { $push: "$features" }  // Rebuild the features array with only matching ones
                 }
             }
-        }).toArray();
+        ]).toArray();
+
+        console.log("Traffic signals in the bounding box:", nearbySignals);
 
         if (nearbySignals.length === 0) {
             console.log("No traffic signals found within the bounding box.");
             return [];
         }
 
-        // To optimize, loop over only those route points that match the traffic signal data
+        // Create a map for fast lookup of route points by ID
         const routePointMap = new Map(routePoints.map(point => [point.id, point])); // Map route points by id for faster lookup
 
         const matchingSignals = [];
+        const addedSignalCoordinates = new Set();  // To store unique coordinates of added signals
 
         // Check each feature in the traffic signal data
         for (const signal of nearbySignals) {
-            // Loop through all features in the current signal data
             for (const feature of signal.features) {
-                // Make sure the feature has a geometry and coordinates
                 if (feature.geometry && feature.geometry.coordinates) {
                     const { coordinates } = feature.geometry;
                     const signalLat = coordinates[1];
                     const signalLng = coordinates[0];
 
-                    // Optimized: Loop through route points and check for matches only when within bounding box
-                    for (const point of routePoints) {
-                        const { lat, lng } = point;
-                        // Calculate the distance only if the point is inside the bounding box
-                        if (lat >= bbox[0][1] && lat <= bbox[1][1] && lng >= bbox[0][0] && lng <= bbox[1][0]) {
+                    // Create a key based on coordinates (latitude and longitude)
+                    const signalKey = `${signalLat}-${signalLng}`;
+
+                    // Check if this signal's coordinates have already been added
+                    if (!addedSignalCoordinates.has(signalKey)) {
+                        // Now iterate through route points to find matches
+                        for (const { lat, lng, id } of routePoints) {
                             const distance = geolib.getDistance(
                                 { latitude: lat, longitude: lng },
                                 { latitude: signalLat, longitude: signalLng }
                             );
 
-                            // If the signal is within 5 meters, add it to the matching signals list
-                            if (distance <= 5) {
+                            // If the distance is within the threshold (e.g., 10 meters)
+                            if (distance <= 20) {
                                 matchingSignals.push({
-                                    routePointId: point.id,
+                                    routePointId: id,
                                     trafficSignal: feature
                                 });
+
+                                // Add this signal's coordinates to the set of added signals
+                                addedSignalCoordinates.add(signalKey); // Mark this signal as added
+                                break;  // No need to check further points for this signal
                             }
                         }
                     }

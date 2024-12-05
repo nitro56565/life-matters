@@ -77,8 +77,14 @@ io.on('connection', (socket) => {
 
     try {
       const signals = await findNearbyTrafficSignals(routePoints);
-
+      let matchedData = []
       console.log('Traffic signals found:', signals); // Log the found traffic signals
+      for (let index = 0; index < signals.length; index++) {
+        matchedData.push({ "lat": signals[index].trafficSignal.geometry.coordinates[1], "lng": signals[index].trafficSignal.geometry.coordinates[0] })
+
+      }
+      console.log(JSON.stringify(matchedData, null, 2));
+      console.log(matchedData.length)
       socket.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, signals);
     } catch (error) {
       console.error('Error finding traffic signals:', error); // Log errors if any
