@@ -33,14 +33,15 @@ const AmbulanceMainPage = () => {
   const [currentLocation, setCurrentLocation] = useState<any>(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
+  const [isTracking, setIsTracking] = useState(false); // Track if live tracking is enabled
   const router = useIonRouter();
 
   const sourceRef = useRef<HTMLIonInputElement | null>(null);
   const destinationRef = useRef<HTMLIonInputElement | null>(null);
   const socket = getSocket();
+  let locationInterval: NodeJS.Timeout;
 
   useEffect(() => {
-    // Redirect if the user is not authenticated
     if (
       !localStorage.getItem("authToken") &&
       !localStorage.getItem("userType")
@@ -48,14 +49,15 @@ const AmbulanceMainPage = () => {
       router.push("/", "root", "replace");
     }
 
-    // WebSocket event listeners
     socket.on("traffic-signals-response", (data: any) => {
       console.log("Traffic signals data received:", data);
     });
 
     return () => {
-      // Clean up WebSocket listeners
       socket.off("traffic-signals-response");
+      if (locationInterval) {
+        clearInterval(locationInterval); // Clean up the interval
+      }
     };
   }, [router, socket]);
 
@@ -73,7 +75,7 @@ const AmbulanceMainPage = () => {
       }
 
       if (sourceMarker) {
-        sourceMarker.setMap(null);
+        sourceMarker.setMap(null); // Remove old marker
       }
 
       const newSourceMarker = new window.google.maps.Marker({
@@ -82,8 +84,7 @@ const AmbulanceMainPage = () => {
         title: "Current Location",
       });
       setSourceMarker(newSourceMarker);
-
-      map.panTo(new window.google.maps.LatLng(latitude, longitude));
+      // map.panTo(new window.google.maps.LatLng(latitude, longitude));
     } catch (error) {
       console.error("Error getting location:", error);
       setError("Failed to get current location");
@@ -171,10 +172,7 @@ const AmbulanceMainPage = () => {
           setDistance(route.distance.text);
           setDuration(route.duration.text);
 
-          // Counter for global unique ID
           let pointCounter = 0;
-
-          // Extract high-density route points
           const highDensityPoints = route.steps.flatMap((step) => {
             const densePath = [];
             for (let i = 0; i < step.path.length - 1; i++) {
@@ -187,7 +185,6 @@ const AmbulanceMainPage = () => {
               });
               pointCounter++;
 
-              // Add interpolated points between start and end
               const interpolated = interpolatePoints(
                 start,
                 end,
@@ -195,11 +192,8 @@ const AmbulanceMainPage = () => {
                 pointCounter
               );
               densePath.push(...interpolated);
-
-              // Update pointCounter based on the number of interpolated points
               pointCounter += interpolated.length;
             }
-            // Push the last point
             densePath.push({
               id: `${pointCounter}`,
               lat: step.path[step.path.length - 1].lat(),
@@ -225,8 +219,11 @@ const AmbulanceMainPage = () => {
       const destinationCoords = destinationMarker.getPosition();
 
       const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${sourceCoords.lat()},${sourceCoords.lng()}&destination=${destinationCoords.lat()},${destinationCoords.lng()}`;
-
       window.open(googleMapsUrl, "_blank");
+
+      // Start live tracking after the trip starts
+      setIsTracking(true);
+      locationInterval = setInterval(fetchCurrentLocation, 5000); // Update location every 5 seconds
     } else {
       setError(
         "Please set both source and destination before starting the trip."

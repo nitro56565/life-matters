@@ -19,6 +19,10 @@ export async function findNearbyTrafficSignals(routePoints) {
         // Loop through all route points to find the min and max latitudes and longitudes
         for (const point of routePoints) {
             const { lat, lng } = point;
+            if (!lat || !lng) {
+                console.error("Invalid route point:", point);
+                continue;
+            }
             minLat = Math.min(minLat, lat);
             maxLat = Math.max(maxLat, lat);
             minLng = Math.min(minLng, lng);
@@ -30,6 +34,7 @@ export async function findNearbyTrafficSignals(routePoints) {
             [minLng, minLat], // Bottom-left corner of the bounding box
             [maxLng, maxLat]  // Top-right corner of the bounding box
         ];
+
         console.log(bbox);
 
         // Aggregation pipeline to get signals in bounding box
@@ -61,9 +66,6 @@ export async function findNearbyTrafficSignals(routePoints) {
             return [];
         }
 
-        // Create a map for fast lookup of route points by ID
-        const routePointMap = new Map(routePoints.map(point => [point.id, point])); // Map route points by id for faster lookup
-
         const matchingSignals = [];
         const addedSignalCoordinates = new Set();  // To store unique coordinates of added signals
 
@@ -75,6 +77,11 @@ export async function findNearbyTrafficSignals(routePoints) {
                     const signalLat = coordinates[1];
                     const signalLng = coordinates[0];
 
+                    if (!signalLat || !signalLng) {
+                        console.error("Missing signal coordinates:", feature);
+                        continue;
+                    }
+
                     // Create a key based on coordinates (latitude and longitude)
                     const signalKey = `${signalLat}-${signalLng}`;
 
@@ -82,12 +89,17 @@ export async function findNearbyTrafficSignals(routePoints) {
                     if (!addedSignalCoordinates.has(signalKey)) {
                         // Now iterate through route points to find matches
                         for (const { lat, lng, id } of routePoints) {
+                            if (!lat || !lng) {
+                                console.error("Route point missing lat or lng:", { lat, lng });
+                                continue;
+                            }
+
                             const distance = geolib.getDistance(
                                 { latitude: lat, longitude: lng },
                                 { latitude: signalLat, longitude: signalLng }
                             );
 
-                            // If the distance is within the threshold (e.g., 10 meters)
+                            // If the distance is within the threshold (e.g., 20 meters)
                             if (distance <= 20) {
                                 matchingSignals.push({
                                     routePointId: id,
