@@ -101,7 +101,7 @@ const AmbulanceMainPage = () => {
             lng: routePoints[i].lng(),
           };
           const distance = calculateDistance(newLocation, point);
-          if (distance <= 1) {
+          if (distance <= 15) {
             // User is within 20 meters of the route
             isOnRoute = true;
             break;
