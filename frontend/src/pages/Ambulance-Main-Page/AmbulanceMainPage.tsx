@@ -67,26 +67,59 @@ const AmbulanceMainPage = () => {
         enableHighAccuracy: true,
       });
       const { latitude, longitude } = position.coords;
+      const newLocation = { lat: latitude, lng: longitude };
 
-      setCurrentLocation({ lat: latitude, lng: longitude });
+      setCurrentLocation(newLocation);
 
-      if (sourceRef.current) {
-        sourceRef.current.value = `${latitude}, ${longitude}`;
-      }
-
+      // Update or create the current location marker
       if (sourceMarker) {
         sourceMarker.setMap(null); // Remove old marker
       }
-
       const newSourceMarker = new window.google.maps.Marker({
-        position: { lat: latitude, lng: longitude },
+        position: newLocation,
         map,
         title: "Current Location",
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 7,
+          fillColor: "#007AFF",
+          fillOpacity: 1,
+          strokeWeight: 1,
+        },
       });
       setSourceMarker(newSourceMarker);
       // map.panTo(new window.google.maps.LatLng(latitude, longitude));
+
+      // Check if the user is still on the route
+      let isOnRoute = false;
+
+      if (directions) {
+        const routePoints = directions.routes[0].overview_path;
+        for (let i = 0; i < routePoints.length; i++) {
+          const point = {
+            lat: routePoints[i].lat(),
+            lng: routePoints[i].lng(),
+          };
+          const distance = calculateDistance(newLocation, point);
+          if (distance <= 1) {
+            // User is within 20 meters of the route
+            isOnRoute = true;
+            break;
+          }
+        }
+      }
+
+      // Reroute if the user deviates
+      if (!isOnRoute) {
+        console.log("User has deviated from the route. Rerouting...");
+        // Update source marker position for calculateRoute
+        if (sourceMarker) {
+          sourceMarker.setPosition(newLocation);
+        }
+        calculateRoute();
+      }
     } catch (error) {
-      console.error("Error getting location:", error);
+      console.error("Error fetching current location:", error);
       setError("Failed to get current location");
     }
   };
@@ -173,11 +206,13 @@ const AmbulanceMainPage = () => {
           setDuration(route.duration.text);
 
           let pointCounter = 0;
+          // Generate high-density route points
           const highDensityPoints = route.steps.flatMap((step) => {
             const densePath = [];
             for (let i = 0; i < step.path.length - 1; i++) {
               const start = step.path[i];
               const end = step.path[i + 1];
+              // Add original points
               densePath.push({
                 id: `${pointCounter}`,
                 lat: start.lat(),
@@ -185,6 +220,7 @@ const AmbulanceMainPage = () => {
               });
               pointCounter++;
 
+              // Add interpolated points
               const interpolated = interpolatePoints(
                 start,
                 end,
@@ -194,6 +230,7 @@ const AmbulanceMainPage = () => {
               densePath.push(...interpolated);
               pointCounter += interpolated.length;
             }
+            // Add the last point of the step
             densePath.push({
               id: `${pointCounter}`,
               lat: step.path[step.path.length - 1].lat(),
@@ -203,8 +240,7 @@ const AmbulanceMainPage = () => {
             return densePath;
           });
 
-          console.log(highDensityPoints);
-          console.log("Route sent successfully:");
+          console.log("Generated high-density points:", highDensityPoints);
           socket.emit("request-traffic-signals", highDensityPoints);
         } else {
           setError("Directions request failed due to " + status);
@@ -223,7 +259,9 @@ const AmbulanceMainPage = () => {
 
       // Start live tracking after the trip starts
       setIsTracking(true);
-      locationInterval = setInterval(fetchCurrentLocation, 5000); // Update location every 5 seconds
+      locationInterval = setInterval(() => {
+        fetchCurrentLocation();
+      }, 5000);
     } else {
       setError(
         "Please set both source and destination before starting the trip."
@@ -238,6 +276,26 @@ const AmbulanceMainPage = () => {
       localStorage.removeItem("userType");
       router.push("/ambulance-signin", "root", "replace");
     }
+  };
+
+  const calculateDistance = (point1, point2) => {
+    const rad = (x) => (x * Math.PI) / 180;
+    const R = 6371e3; // Earth's radius in meters
+    const lat1 = rad(point1.lat);
+    const lat2 = rad(point2.lat);
+    const deltaLat = rad(point2.lat - point1.lat);
+    const deltaLng = rad(point2.lng - point1.lng);
+
+    const a =
+      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.sin(deltaLng / 2) *
+        Math.sin(deltaLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in meters
   };
 
   if (error) return <div style={{ color: "red" }}>{error}</div>;
