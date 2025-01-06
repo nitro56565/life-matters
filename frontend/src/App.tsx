@@ -29,6 +29,9 @@ const ForgotPassword = lazy(
 const SetNewPassword = lazy(
   () => import("./pages/set-new-password/SetNewPasswordPage")
 );
+const TrafficPoliceSignUp = lazy(
+  () => import("./pages/Traffic-Police-SignUp/TrafficPoliceSignUp")
+)
 
 setupIonicReact();
 
@@ -112,6 +115,7 @@ const App: React.FC = () => {
             <Route exact path="/ambulance-home" component={AmbulanceMainPage} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route exact path="/set-new-password" component={SetNewPassword} />
+            <Route exact path="/trafficpolicesignup" component={TrafficPoliceSignUp} />
           </Suspense>
         </IonRouterOutlet>
       </IonReactRouter>

@@ -30,16 +30,22 @@ const AmbulanceMainPage = () => {
   const [destinationMarker, setDestinationMarker] = useState<any>(null);
   const [directions, setDirections] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<any>(null);
+  const [previousRouteStart, setPreviousRouteStart] = useState<any>(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
-  const [isTracking, setIsTracking] = useState(false); // Track if live tracking is enabled
+  const [isTracking, setIsTracking] = useState(false);
+  const [directionsRenderer, setDirectionsRenderer] = useState<any>(null);
   const router = useIonRouter();
 
   const sourceRef = useRef<HTMLIonInputElement | null>(null);
   const destinationRef = useRef<HTMLIonInputElement | null>(null);
+  const previousRouteStartRef = useRef(previousRouteStart);
   const socket = getSocket();
   let locationInterval: NodeJS.Timeout;
+
+  useEffect(() => {
+    previousRouteStartRef.current = previousRouteStart;
+  }, [previousRouteStart]);
 
   useEffect(() => {
     if (
@@ -68,13 +74,33 @@ const AmbulanceMainPage = () => {
       });
       const { latitude, longitude } = position.coords;
       const newLocation = { lat: latitude, lng: longitude };
+      console.log("Current location new:", newLocation);
+      console.log("Previous route start:", previousRouteStartRef.current);
 
-      setCurrentLocation(newLocation);
+      if (previousRouteStart) {
+        const distanceFromStart = calculateDistance(
+          previousRouteStartRef.current,
+          newLocation
+        );
+        console.log("Distance from start:", distanceFromStart);
 
-      // Update or create the current location marker
-      if (sourceMarker) {
-        sourceMarker.setMap(null); // Remove old marker
+        if (distanceFromStart > 30) {
+          if (sourceMarker) {
+            sourceMarker.setPosition(newLocation);
+          }
+          console.log("User deviated from the route. Recalculating...");
+          calculateRoute();
+        } else {
+          console.log(
+            "User is within the allowed radius from the start point."
+          );
+        }
       }
+
+      if (sourceMarker) {
+        sourceMarker.setMap(null);
+      }
+
       const newSourceMarker = new window.google.maps.Marker({
         position: newLocation,
         map,
@@ -89,35 +115,6 @@ const AmbulanceMainPage = () => {
       });
       setSourceMarker(newSourceMarker);
       // map.panTo(new window.google.maps.LatLng(latitude, longitude));
-
-      // Check if the user is still on the route
-      let isOnRoute = false;
-
-      if (directions) {
-        const routePoints = directions.routes[0].overview_path;
-        for (let i = 0; i < routePoints.length; i++) {
-          const point = {
-            lat: routePoints[i].lat(),
-            lng: routePoints[i].lng(),
-          };
-          const distance = calculateDistance(newLocation, point);
-          if (distance <= 15) {
-            // User is within 20 meters of the route
-            isOnRoute = true;
-            break;
-          }
-        }
-      }
-
-      // Reroute if the user deviates
-      if (!isOnRoute) {
-        console.log("User has deviated from the route. Rerouting...");
-        // Update source marker position for calculateRoute
-        if (sourceMarker) {
-          sourceMarker.setPosition(newLocation);
-        }
-        calculateRoute();
-      }
     } catch (error) {
       console.error("Error fetching current location:", error);
       setError("Failed to get current location");
@@ -189,6 +186,13 @@ const AmbulanceMainPage = () => {
 
   const calculateRoute = () => {
     if (sourceMarker && destinationMarker) {
+      if (directions) {
+        setDirections(null);
+      }
+      if (directionsRenderer) {
+        directionsRenderer.setMap(null); // This should fully remove the old route
+        setDirectionsRenderer(null);
+      }
       const directionsService = new window.google.maps.DirectionsService();
       const request = {
         origin: sourceMarker.getPosition(),
@@ -239,6 +243,13 @@ const AmbulanceMainPage = () => {
             pointCounter++;
             return densePath;
           });
+
+          if (highDensityPoints.length > 0) {
+            setPreviousRouteStart({
+              lat: highDensityPoints[0].lat,
+              lng: highDensityPoints[0].lng,
+            });
+          }
 
           console.log("Generated high-density points:", highDensityPoints);
           socket.emit("request-traffic-signals", highDensityPoints);
