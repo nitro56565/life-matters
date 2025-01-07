@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   IonButton,
   IonContent,
@@ -8,12 +8,13 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap, Circle } from "@react-google-maps/api";
 
 interface TrafficZoneClusterProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (selectedLocation: string) => void;
+  onSubmit: (selectedZone) => void;
+  trafficZones: { id: number; lat: number; lng: number }[]; // Updated with an ID
 }
 
 const mapContainerStyle = {
@@ -26,24 +27,44 @@ const initialCenter = {
   lng: 73.856255,
 };
 
+const circleOptions = {
+  strokeColor: "#FF0000",
+  strokeOpacity: 0.8,
+  strokeWeight: 2,
+  fillColor: "#FF0000",
+  fillOpacity: 0.35,
+  clickable: true,
+  draggable: false,
+  editable: false,
+  visible: true,
+  radius: 100,
+  zIndex: 1,
+};
+
 const TrafficZoneCluster: React.FC<TrafficZoneClusterProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  trafficZones,
 }) => {
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [selectedMarker, setSelectedMarker] =
-    useState<google.maps.LatLng | null>(null);
+  const [selectedZone, setSelectedZone] = useState<{
+    id: number;
+    lat: number;
+    lng: number;
+  } | null>(null);
 
-  const handleMapClick = (event: google.maps.MapMouseEvent) => {
-    if (event.latLng) {
-      setSelectedMarker(event.latLng);
-    }
+  const handleCircleClick = (zone: {
+    id: number;
+    lat: number;
+    lng: number;
+  }) => {
+    console.log("Selected Traffic Zone:", zone);
+    setSelectedZone(zone);
   };
 
   const handleSelect = () => {
-    if (selectedMarker) {
-      onSubmit(selectedMarker.toString());
+    if (selectedZone) {
+      onSubmit(selectedZone.id);
       onClose();
     }
   };
@@ -60,14 +81,24 @@ const TrafficZoneCluster: React.FC<TrafficZoneClusterProps> = ({
           mapContainerStyle={mapContainerStyle}
           center={initialCenter}
           zoom={12}
-          onLoad={(mapInstance) => setMap(mapInstance)}
-          onClick={handleMapClick}
         >
-          {selectedMarker && <Marker position={selectedMarker} />}
+          {/* Render Circles for Traffic Zones */}
+          {trafficZones.map((zone) => (
+            <Circle
+              key={zone.id}
+              center={{ lat: zone.lat, lng: zone.lng }}
+              options={circleOptions}
+              onClick={() => handleCircleClick(zone)}
+            />
+          ))}
         </GoogleMap>
       </IonContent>
       <IonFooter>
-        <IonButton expand="block" onClick={handleSelect}>
+        <IonButton
+          expand="block"
+          onClick={handleSelect}
+          disabled={!selectedZone}
+        >
           Select
         </IonButton>
         <IonButton expand="block" color="danger" onClick={onClose}>

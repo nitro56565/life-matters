@@ -5,17 +5,21 @@ const TrafficPoliceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  location: {
-    type: String,
-    required: true,
-  },
+  // location: {
+  //   type: String,
+  //   required: true,
+  // },
   phone: {
     type: String,
     required: true,
     unique: true,
   },
-  password: {
-    type: String,
+  // password: {
+  //   type: String,
+  //   required: true,
+  // },
+  clusterZone: {
+    type: Array,
     required: true,
   },
 });

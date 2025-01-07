@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IonButton,
   IonContent,
@@ -10,6 +10,7 @@ import {
 import { useIonRouter } from "@ionic/react";
 import TrafficZoneCluster from "../../components/TrafficZoneCluster/TrafficZoneCluster";
 import "./TrafficPoliceSignUp.css";
+import axios from "axios";
 
 const TrafficPoliceSignUp: React.FC = () => {
   const [name, setName] = useState("");
@@ -21,10 +22,35 @@ const TrafficPoliceSignUp: React.FC = () => {
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useIonRouter();
+  const [clusters, setClusters] = useState([]);
+
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  useEffect(() => {
+    const fetchClusters = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/traffic-clusters`);
+        const formattedClusters = response.data.map((cluster: any) => ({
+          id: cluster.id,
+          lat: Number(cluster.data.lat),
+          lng: Number(cluster.data.lon),
+        }));
+        setClusters(formattedClusters);
+      } catch (error) {
+        console.error("Error fetching traffic zone clusters:", error);
+        setMessage({
+          text: "Failed to fetch traffic zone clusters.",
+          type: "error",
+        });
+      }
+    };
+
+    fetchClusters();
+  }, []);
 
   const validatePhone = (phone: string) => /^\d{10}$/.test(phone);
 
-  const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage(null);
 
@@ -41,10 +67,39 @@ const TrafficPoliceSignUp: React.FC = () => {
       return;
     }
 
-    setMessage({ text: "Sign-up successful! Redirecting...", type: "success" });
-    setTimeout(() => {
-      router.push("/trafficpolice-home", "root", "replace");
-    }, 2000);
+    try {
+
+      // Prepare the data to be sent
+      const data = {
+        name,
+        phone,
+        cluster: trafficSignal, // Send the selected cluster object
+      };
+      console.log(data);
+
+      const response = await axios.post(
+        `${BACKEND_URL}/api/traffic-police-register`,
+        data
+      );
+
+      if (response.data && response.data.message) {
+        setMessage({
+          text: "Sign-up successful! Redirecting...",
+          type: "success",
+        });
+        setTimeout(() => {
+          router.push("/trafficpolice-signin", "root", "replace");
+        }, 2000);
+      } else {
+        throw new Error("Failed to sign up.");
+      }
+    } catch (error) {
+      console.error("Error during sign-up:", error);
+      setMessage({
+        text: "Failed to sign up. Please try again later.",
+        type: "error",
+      });
+    }
   };
 
   const handleTrafficSignalClick = () => {
@@ -104,7 +159,9 @@ const TrafficPoliceSignUp: React.FC = () => {
                   expand="block"
                   onClick={handleTrafficSignalClick}
                 >
-                  {trafficSignal || "Select Traffic Signal"}
+                  {trafficSignal
+                    ? `Selected Cluster ID: ${trafficSignal}`
+                    : "Select Traffic Signal"}
                 </IonButton>
               </IonItem>
 
@@ -119,6 +176,7 @@ const TrafficPoliceSignUp: React.FC = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSubmit={(signal) => setTrafficSignal(signal)}
+          trafficZones={clusters}
         />
       </IonContent>
     </IonPage>

@@ -5,7 +5,9 @@ let socket;
 
 export const getSocket = () => {
   if (!socket) {
-    socket = io(import.meta.env.VITE_BACKEND_URL); // Replace with your backend URL
+    socket = io(import.meta.env.VITE_BACKEND_URL,{
+      reconnection: true,
+    });
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket server");
