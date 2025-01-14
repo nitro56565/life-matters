@@ -42,8 +42,9 @@ const SignIn: React.FC<SignInProps> = ({
 
     const token = localStorage.getItem("authToken");
     const userType = localStorage.getItem("userType");
+    const userName = localStorage.getItem("name");
 
-    if (token && userType) {
+    if (token && userType && userName) {
       router.push(redirectUrl, "root", "replace");
     }
   }, [router, redirectUrl]);
@@ -65,9 +66,10 @@ const SignIn: React.FC<SignInProps> = ({
       const response = await axios.post(apiUrl, { phone, password });
 
       if (response.status === 200) {
-        const { token, userType } = response.data;
+        const { token, userType, name } = response.data;
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
+        localStorage.setItem("name", name);
 
         setMessage({
           text: "Sign-in successful! Redirecting...",

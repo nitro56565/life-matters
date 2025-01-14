@@ -15,6 +15,7 @@ import axios from "axios";
 const TrafficPoliceSignUp: React.FC = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [trafficSignal, setTrafficSignal] = useState("");
   const [message, setMessage] = useState<{
     text: string;
@@ -54,7 +55,7 @@ const TrafficPoliceSignUp: React.FC = () => {
     e.preventDefault();
     setMessage(null);
 
-    if (!name || !phone || !trafficSignal) {
+    if (!name || !phone || !password || !trafficSignal) {
       setMessage({ text: "All fields are required.", type: "error" });
       return;
     }
@@ -68,17 +69,16 @@ const TrafficPoliceSignUp: React.FC = () => {
     }
 
     try {
-
-      // Prepare the data to be sent
       const data = {
         name,
         phone,
-        cluster: trafficSignal, // Send the selected cluster object
+        password,
+        cluster: trafficSignal,
       };
       console.log(data);
 
       const response = await axios.post(
-        `${BACKEND_URL}/api/traffic-police-register`,
+        `${BACKEND_URL}/api/trafficpolice/signup`,
         data
       );
 
@@ -96,7 +96,7 @@ const TrafficPoliceSignUp: React.FC = () => {
     } catch (error) {
       console.error("Error during sign-up:", error);
       setMessage({
-        text: "Failed to sign up. Please try again later.",
+        text: error.response.data.message,
         type: "error",
       });
     }
@@ -149,6 +149,20 @@ const TrafficPoliceSignUp: React.FC = () => {
                     ).value.replace(/\D/g, "");
                     if (newPhone.length <= 10) setPhone(newPhone);
                   }}
+                  required
+                />
+              </IonItem>
+
+              <IonItem className="signup-item">
+                <IonInput
+                  label="Password"
+                  labelPlacement="floating"
+                  type="password"
+                  className="signup-input password-input"
+                  value={password}
+                  onIonInput={(e) =>
+                    setPassword((e.target as unknown as HTMLInputElement).value)
+                  }
                   required
                 />
               </IonItem>

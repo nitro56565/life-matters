@@ -8,11 +8,14 @@ import {
   IonItem,
   IonList,
   useIonRouter,
+  IonButton,
 } from "@ionic/react";
 import { locate, location } from "ionicons/icons";
 import { Geolocation } from "@capacitor/geolocation";
 import { getSocket } from "../../components/Utils/socketService";
 import "./Ambulancemainpage.css";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import { menuOutline } from "ionicons/icons";
 
 const containerStyle = {
   width: "100%",
@@ -280,15 +283,6 @@ const AmbulanceMainPage = () => {
     }
   };
 
-  const logout = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    if (window.confirm("Are you sure you want to log out?")) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userType");
-      router.push("/ambulance-signin", "root", "replace");
-    }
-  };
-
   const calculateDistance = (point1, point2) => {
     const rad = (x) => (x * Math.PI) / 180;
     const R = 6371e3; // Earth's radius in meters
@@ -311,95 +305,109 @@ const AmbulanceMainPage = () => {
 
   if (error) return <div style={{ color: "red" }}>{error}</div>;
 
+  const openMenu = () => {
+    document.querySelector("ion-menu")?.open();
+  };
+
   return (
-    <IonPage>
-      <IonContent>
-        <div className="container">
-          <h1 className="title">Ambulance Portal</h1>
-
-          {/* Source - Destination Inputs */}
-          <div className="input-container">
-            <IonList className="input-list" style={{ background: "white" }}>
-              <IonItem lines="none" className="input-box">
-                <IonInput
-                  ref={sourceRef}
-                  labelPlacement="stacked"
-                  label="Source"
-                  className="input-label"
-                >
-                  <IonIcon
-                    style={{ color: "black", scale: "1.5" }}
-                    slot="start"
-                    icon={location}
-                    aria-hidden="true"
-                  />
-                </IonInput>
-              </IonItem>
-            </IonList>
-            <IonList className="input-list" style={{ background: "white" }}>
-              <IonItem lines="none" className="input-box">
-                <IonInput
-                  ref={destinationRef}
-                  labelPlacement="stacked"
-                  label="Destination"
-                  className="input-label"
-                >
-                  <IonIcon
-                    style={{ color: "black", scale: "1.5" }}
-                    slot="start"
-                    icon={location}
-                    aria-hidden="true"
-                  />
-                </IonInput>
-              </IonItem>
-            </IonList>
-          </div>
-
-          <div className="button-container">
-            <div>
-              <IonIcon
-                onClick={fetchCurrentLocation}
-                className="locate-icon"
-                icon={locate}
-              />
+    <>
+      <Sidebar />
+      <IonPage>
+        <IonContent id="main-content">
+          <div className="container">
+            <div className="header">
+              <IonButton
+                onClick={openMenu}
+                fill="clear"
+                className="menu-button"
+              >
+                <IonIcon icon={menuOutline} />
+              </IonButton>
+              <h1 className="title">Ambulance Portal</h1>
             </div>
-            <button className="route-button" onClick={calculateRoute}>
-              Show Route
-            </button>
-            <button onClick={handleStartTrip} className="start-button">
-              Start
-            </button>
-          </div>
+            {/* Source - Destination Inputs */}
+            <div className="input-container">
+              <IonList className="input-list" style={{ background: "white" }}>
+                <IonItem lines="none" className="input-box">
+                  <IonInput
+                    ref={sourceRef}
+                    labelPlacement="stacked"
+                    label="Source"
+                    className="input-label"
+                  >
+                    <IonIcon
+                      style={{ color: "black", scale: "1.5" }}
+                      slot="start"
+                      icon={location}
+                      aria-hidden="true"
+                    />
+                  </IonInput>
+                </IonItem>
+              </IonList>
+              <IonList className="input-list" style={{ background: "white" }}>
+                <IonItem lines="none" className="input-box">
+                  <IonInput
+                    ref={destinationRef}
+                    labelPlacement="stacked"
+                    label="Destination"
+                    className="input-label"
+                  >
+                    <IonIcon
+                      style={{ color: "black", scale: "1.5" }}
+                      slot="start"
+                      icon={location}
+                      aria-hidden="true"
+                    />
+                  </IonInput>
+                </IonItem>
+              </IonList>
+            </div>
 
-          {/* Logout Button */}
-          <div className="logout-container">
-            <p>Duration: {duration}</p>
-            <p>Distance: {distance}</p>
-            <button onClick={logout} className="logout-button">
-              Logout
-            </button>
-          </div>
+            <div className="button-container">
+              <div>
+                <IonIcon
+                  onClick={fetchCurrentLocation}
+                  className="locate-icon"
+                  icon={locate}
+                />
+              </div>
+              <button className="route-button" onClick={calculateRoute}>
+                Show Route
+              </button>
+              <button onClick={handleStartTrip} className="start-button">
+                Start
+              </button>
+            </div>
 
-          {/* Map Display */}
-          <div className="map-container">
-            <GoogleMap
-              id="map"
-              mapContainerStyle={containerStyle}
-              center={center}
-              zoom={6}
-              onLoad={(mapInstance: any) => setMap(mapInstance)}
-              options={{ gestureHandling: "greedy" }}
-            >
-              {sourceMarker && <Marker position={sourceMarker.getPosition()} />}
-              {destinationMarker && (
-                <Marker position={destinationMarker.getPosition()} />
-              )}
-              {directions && <DirectionsRenderer directions={directions} />}
-            </GoogleMap>
+            {/* Display and Duration */}
+            <div className="dd-container">
+              <p>Duration: {duration}</p>
+              <p>Distance: {distance}</p>
+            </div>
+
+            {/* Map Display */}
+            <div className="map-container">
+              <GoogleMap
+                id="map"
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={6}
+                onLoad={(mapInstance: any) => setMap(mapInstance)}
+                options={{ gestureHandling: "greedy" }}
+              >
+                {sourceMarker && (
+                  <Marker position={sourceMarker.getPosition()} />
+                )}
+                {destinationMarker && (
+                  <Marker position={destinationMarker.getPosition()} />
+                )}
+                {directions && <DirectionsRenderer directions={directions} />}
+              </GoogleMap>
+            </div>
           </div>
-        </div>
-      </IonContent>
-    </IonPage>
+        </IonContent>
+      </IonPage>
+    </>
   );
 };
 

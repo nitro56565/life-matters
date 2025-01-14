@@ -71,13 +71,14 @@ router.post('/signin', async (req, res) => {
         const payload = {
             ambulance: {
                 id: ambulance.id,
+                name: ambulance.name,
             },
         };
 
         jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
             if (err) throw err;
             // Return the token and user type
-            res.json({ token, userType: 'ambulance' });
+            res.json({ token, userType: 'ambulance', name: ambulance.name});
         });
     } catch (error) {
         console.error(error.message);

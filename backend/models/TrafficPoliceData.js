@@ -14,10 +14,10 @@ const TrafficPoliceSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  // password: {
-  //   type: String,
-  //   required: true,
-  // },
+  password: {
+    type: String,
+    required: true,
+  },
   clusterZone: {
     type: Array,
     required: true,

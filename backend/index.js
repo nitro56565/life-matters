@@ -9,13 +9,27 @@ import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { findNearbyTrafficSignals } from './utils/trafficSignalMatcher.js';
 import { createClusters, clusters } from './utils/trafficSignalClusters.js';
-import TrafficPoliceData from './models/TrafficPoliceData.js';
-
 dotenv.config();
 
 const REQUEST_TRAFFIC_SIGNALS_EVENT = 'request-traffic-signals';
 const TRAFFIC_SIGNALS_MATCHES_EVENT = 'traffic-signals-matches';
-let unfilteredClusters = []
+export let unfilteredClusters = [];
+let cachedClusters = [];
+
+
+export const initializeClusters = async () => {
+  try {
+    console.log("Processing clusters...");
+    cachedClusters = await createClusters();
+    console.log("Clusters processed and cached.");
+    unfilteredClusters = clusters; // Assign the clusters globally
+  } catch (err) {
+    console.error("Error initializing clusters:", err);
+  }
+};
+
+// Initialize clusters on startup
+initializeClusters();
 
 const app = express();
 const server = http.createServer(app);
@@ -35,21 +49,6 @@ app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 app.use('/api/ambulance', ambulanceRoutes);
 app.use('/api/trafficpolice', trafficPoliceRoutes);
 
-let cachedClusters = [];
-
-const initializeClusters = async () => {
-  try {
-    console.log("Processing clusters...");
-    cachedClusters = await createClusters();
-    console.log("Clusters processed and cached.");
-  } catch (err) {
-    console.error("Error initializing clusters:", err);
-  }
-  unfilteredClusters = clusters
-};
-
-// Initialize clusters on startup
-initializeClusters();
 
 // Sample routes
 app.get('/', (req, res) => res.send('Express + WebSocket API Server is running!'));
@@ -79,43 +78,6 @@ app.get('/api/traffic-clusters', (req, res) => {
     return res.status(503).json({ message: "Clusters are still being processed. Try again later." });
   }
   res.json(cachedClusters);
-});
-
-app.post('/api/traffic-police-register', async (req, res) => {
-  try {
-    const { cluster: zoneId, name, phone } = req.body;
-
-    if (!zoneId || !name || !phone) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    // Replace cluster with clusterZone
-    const clusterZone = unfilteredClusters[zoneId - 1];
-
-    if (!clusterZone) {
-      return res.status(404).json({ message: `Cluster with ID ${zoneId} not found` });
-    }
-
-    const trafficPoliceData = {
-      name,
-      phone,
-      clusterZone, // Replaced the cluster key with clusterZone
-    };
-
-    // Save to MongoDB
-    const trafficPolice = new TrafficPoliceData(trafficPoliceData);
-    await trafficPolice.save();
-
-    res.status(201).json({
-      message: 'Traffic police registered successfully',
-      data: trafficPolice,
-    });
-
-    console.log('Traffic police registration data:', trafficPoliceData);
-  } catch (error) {
-    console.error('Error registering traffic police:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
 });
 
 
