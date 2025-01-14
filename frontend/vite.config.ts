@@ -14,5 +14,13 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
-  }
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://life-matters.onrender.com",
+        changeOrigin: true,
+      },
+    },
+  },
 })
