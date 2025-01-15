@@ -13,6 +13,17 @@ router.post('/signup', async (req, res) => {
     const { name, hospitalName, vehicleNumber, phone, password } = req.body;
 
     try {
+        if (!/^\d{10}$/.test(phone)) {
+            return res.status(400).json({ msg: "Invalid phone number format" });
+        }
+        if (!name || !hospitalName || !vehicleNumber || !password) {
+            return res.status(400).json({ msg: "All fields are required" });
+        }
+
+        const existingAmbulance = await AmbulanceData.findOne({ phone });
+        if (existingAmbulance) {
+            return res.status(400).json({ msg: "Ambulance with this phone number already exists" });
+        }
         // Create a new ambulance document
         const ambulance = new AmbulanceData({
             name,
@@ -78,7 +89,7 @@ router.post('/signin', async (req, res) => {
         jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
             if (err) throw err;
             // Return the token and user type
-            res.json({ token, userType: 'ambulance', name: ambulance.name});
+            res.json({ token, userType: 'ambulance', name: ambulance.name });
         });
     } catch (error) {
         console.error(error.message);

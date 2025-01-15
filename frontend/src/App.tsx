@@ -1,17 +1,16 @@
 import { Redirect, Route } from "react-router-dom";
 import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Geolocation } from "@capacitor/geolocation";
+
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
 import "@ionic/react/css/typography.css";
-
-/* Minimal CSS utils */
 import "@ionic/react/css/flex-utils.css";
 
 /* Theme variables */
@@ -31,14 +30,17 @@ const SetNewPassword = lazy(
 );
 const TrafficPoliceSignUp = lazy(
   () => import("./pages/Traffic-Police-SignUp/TrafficPoliceSignUp")
-)
+);
+const AmbulanceSignUp = lazy(
+  () => import("./pages/Ambulance-SignUp/AmbulanceSignUp")
+);
 
 setupIonicReact();
 
-const App: React.FC = () => {
-  //Map Loading
+const App = () => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
+  // Load Google Maps API
   const loadGoogleMapsApi = () => {
     return new Promise((resolve, reject) => {
       if (window.google && window.google.maps) {
@@ -46,28 +48,21 @@ const App: React.FC = () => {
         return;
       }
 
-      // Check if script is already present in the document
       const existingScript = document.querySelector(
         `script[src^="https://maps.googleapis.com/maps/api/js"]`
       );
       if (existingScript) {
-        existingScript.addEventListener("load", () =>
-          resolve(window.google.maps)
-        );
-        existingScript.addEventListener("error", () =>
-          reject(new Error("Failed to load Google Maps API"))
-        );
+        existingScript.addEventListener("load", () => resolve(window.google.maps));
+        existingScript.addEventListener("error", () => reject(new Error("Failed to load Google Maps API")));
         return;
       }
 
-      // Inject the script if not present
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${
         import.meta.env.VITE_GOOGLE_MAPS_API_KEY
       }&libraries=places,routes,geometry&loading=async`;
       script.async = true;
       script.defer = true;
-
       script.onload = () => resolve(window.google.maps);
       script.onerror = (error) => reject(error);
 
@@ -75,7 +70,40 @@ const App: React.FC = () => {
     });
   };
 
+  // Request Location Permission
+  const requestLocationPermission = async () => {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const hasPermission = await Geolocation.checkPermissions();
+        if (hasPermission.location !== "granted") {
+          const permission = await Geolocation.requestPermissions();
+          if (permission.location !== "granted") {
+            console.warn("Location permission not granted.");
+          }
+        }
+      } else {
+        if (!("geolocation" in navigator)) {
+          console.error("Geolocation is not available in this browser.");
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            console.log("Location obtained:", position);
+          },
+          (error) => {
+            console.error("Error obtaining location:", error);
+          },
+          { enableHighAccuracy: true }
+        );
+      }
+    } catch (error) {
+      console.error("Error requesting location permission:", error);
+    }
+  };
+
   useEffect(() => {
+    requestLocationPermission();
     loadGoogleMapsApi()
       .then(() => {
         console.log("Google Maps API loaded successfully");
@@ -116,6 +144,7 @@ const App: React.FC = () => {
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route exact path="/set-new-password" component={SetNewPassword} />
             <Route exact path="/trafficpolicesignup" component={TrafficPoliceSignUp} />
+            <Route exact path="/ambulancesignup" component={AmbulanceSignUp} />
           </Suspense>
         </IonRouterOutlet>
       </IonReactRouter>

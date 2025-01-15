@@ -140,15 +140,31 @@ const SignIn: React.FC<SignInProps> = ({
                 <IonInput
                   label="Phone Number"
                   labelPlacement="floating"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   className="signin-input phone-input"
                   name="phone"
                   value={phone}
                   onIonInput={(e) => {
-                    const newPhone = (
-                      e.target as unknown as HTMLInputElement
-                    ).value.replace(/\D/g, "");
-                    if (newPhone.length <= 10) setPhone(newPhone);
+                    const input = (e.target as unknown as HTMLInputElement).value.replace(
+                      /\D/g,
+                      ""
+                    );
+                    setPhone(input);
+                  }}
+                  onKeyDown={(e) => {
+                    const inputValue = phone || "";
+                    if (
+                      (e.key >= "0" &&
+                        e.key <= "9" &&
+                        inputValue.length >= 10) ||
+                      (e.key !== "Backspace" &&
+                        e.key !== "Delete" &&
+                        e.key !== "Tab" &&
+                        (e.key < "0" || e.key > "9"))
+                    ) {
+                      e.preventDefault();
+                    }
                   }}
                   required
                 />

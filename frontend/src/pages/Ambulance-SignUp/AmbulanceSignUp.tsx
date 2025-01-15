@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   IonButton,
   IonContent,
@@ -8,46 +8,20 @@ import {
   IonText,
 } from "@ionic/react";
 import { useIonRouter } from "@ionic/react";
-import TrafficZoneCluster from "../../components/TrafficZoneCluster/TrafficZoneCluster";
-import "./TrafficPoliceSignUp.css";
 import axios from "axios";
+import "./AmbulanceSignUp.css";
 
-const TrafficPoliceSignUp: React.FC = () => {
+const AmbulanceSignUp: React.FC = () => {
   const [name, setName] = useState("");
+  const [hospitalName, setHospitalName] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [trafficSignal, setTrafficSignal] = useState("");
   const [message, setMessage] = useState<{
     text: string;
     type: "error" | "success";
   } | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useIonRouter();
-  const [clusters, setClusters] = useState([]);
-
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-  useEffect(() => {
-    const fetchClusters = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/api/traffic-clusters`);
-        const formattedClusters = response.data.map((cluster: any) => ({
-          id: cluster.id,
-          lat: Number(cluster.data.lat),
-          lng: Number(cluster.data.lon),
-        }));
-        setClusters(formattedClusters);
-      } catch (error) {
-        console.error("Error fetching traffic zone clusters:", error);
-        setMessage({
-          text: "Failed to fetch traffic zone clusters.",
-          type: "error",
-        });
-      }
-    };
-
-    fetchClusters();
-  }, []);
 
   const validatePhone = (phone: string) => /^\d{10}$/.test(phone);
 
@@ -55,7 +29,7 @@ const TrafficPoliceSignUp: React.FC = () => {
     e.preventDefault();
     setMessage(null);
 
-    if (!name || !phone || !password || !trafficSignal) {
+    if (!name || !hospitalName || !vehicleNumber || !phone || !password) {
       setMessage({ text: "All fields are required.", type: "error" });
       return;
     }
@@ -71,24 +45,21 @@ const TrafficPoliceSignUp: React.FC = () => {
     try {
       const data = {
         name,
+        hospitalName,
+        vehicleNumber,
         phone,
         password,
-        cluster: trafficSignal,
       };
-      console.log(data);
 
-      const response = await axios.post(
-        `${BACKEND_URL}/api/trafficpolice/signup`,
-        data
-      );
+      const response = await axios.post("/api/ambulance/signup", data);
 
-      if (response.data && response.data.message) {
+      if (response.data && response.data.token) {
         setMessage({
           text: "Sign-up successful! Redirecting...",
           type: "success",
         });
         setTimeout(() => {
-          router.push("/trafficpolice-signin", "root", "replace");
+          router.push("/ambulance-signin", "root", "replace");
         }, 2000);
       } else {
         throw new Error("Failed to sign up.");
@@ -96,14 +67,10 @@ const TrafficPoliceSignUp: React.FC = () => {
     } catch (error) {
       console.error("Error during sign-up:", error);
       setMessage({
-        text: error.response.data.message,
+        text: error.response?.data?.message || "Sign-up failed.",
         type: "error",
       });
     }
-  };
-
-  const handleTrafficSignalClick = () => {
-    setIsModalOpen(true);
   };
 
   return (
@@ -112,7 +79,7 @@ const TrafficPoliceSignUp: React.FC = () => {
         <div className="signup-container">
           <div className="signup-card">
             <div className="signup-header">
-              <h1>Sign Up</h1>
+              <h1>Ambulance Sign Up</h1>
             </div>
             {message && (
               <IonText
@@ -127,7 +94,6 @@ const TrafficPoliceSignUp: React.FC = () => {
                   label="Name"
                   labelPlacement="floating"
                   type="text"
-                  className="signup-input"
                   value={name}
                   onIonInput={(e) =>
                     setName((e.target as unknown as HTMLInputElement).value)
@@ -138,10 +104,52 @@ const TrafficPoliceSignUp: React.FC = () => {
 
               <IonItem className="signup-item">
                 <IonInput
+                  label="Hospital Name"
+                  labelPlacement="floating"
+                  type="text"
+                  value={hospitalName}
+                  onIonInput={(e) =>
+                    setHospitalName(
+                      (e.target as unknown as HTMLInputElement).value
+                    )
+                  }
+                  required
+                />
+              </IonItem>
+
+              <IonItem className="signup-item">
+                <IonInput
+                  label="Vehicle Number"
+                  labelPlacement="floating"
+                  type="text"
+                  value={vehicleNumber}
+                  inputMode="text"
+                  onIonInput={(e) => {
+                    const input = (e.target as unknown as HTMLInputElement)
+                      .value;
+                    if (input.length <= 10) setVehicleNumber(input);
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      vehicleNumber.length >= 10 &&
+                      e.key !== "Backspace" &&
+                      e.key !== "Delete" &&
+                      e.key !== "Tab" &&
+                      !/^[a-zA-Z0-9]$/.test(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  required
+                />
+              </IonItem>
+
+              <IonItem className="signup-item">
+                <IonInput
                   label="Phone Number"
                   labelPlacement="floating"
-                  type="number"
-                  className="signup-input phone-input"
+                  type="text"
+                  inputMode="numeric"
                   value={phone}
                   onIonInput={(e) => {
                     const input = (
@@ -163,13 +171,11 @@ const TrafficPoliceSignUp: React.FC = () => {
                   required
                 />
               </IonItem>
-
               <IonItem className="signup-item">
                 <IonInput
                   label="Password"
                   labelPlacement="floating"
                   type="password"
-                  className="signup-input password-input"
                   value={password}
                   onIonInput={(e) =>
                     setPassword((e.target as unknown as HTMLInputElement).value)
@@ -178,34 +184,15 @@ const TrafficPoliceSignUp: React.FC = () => {
                 />
               </IonItem>
 
-              <IonItem className="signup-item">
-                <IonButton
-                  className="traffic-signal-button"
-                  expand="block"
-                  onClick={handleTrafficSignalClick}
-                >
-                  {trafficSignal
-                    ? `Selected Cluster ID: ${trafficSignal}`
-                    : "Select Traffic Signal"}
-                </IonButton>
-              </IonItem>
-
               <IonButton type="submit" expand="block" className="signup-button">
                 Sign Up
               </IonButton>
             </form>
           </div>
         </div>
-
-        <TrafficZoneCluster
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={(signal) => setTrafficSignal(signal)}
-          trafficZones={clusters}
-        />
       </IonContent>
     </IonPage>
   );
 };
 
-export default TrafficPoliceSignUp;
+export default AmbulanceSignUp;

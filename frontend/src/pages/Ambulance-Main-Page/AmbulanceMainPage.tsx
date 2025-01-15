@@ -16,6 +16,7 @@ import { getSocket } from "../../components/Utils/socketService";
 import "./Ambulancemainpage.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { menuOutline } from "ionicons/icons";
+import startBackgroundTracking  from "../../components/Utils/BackgroundLocationTracking";
 
 const containerStyle = {
   width: "100%",
@@ -263,8 +264,9 @@ const AmbulanceMainPage = () => {
     }
   };
 
-  const handleStartTrip = () => {
+  const handleStartTrip = async () => {
     if (sourceMarker && destinationMarker) {
+      await startBackgroundTracking();
       const sourceCoords = sourceMarker.getPosition();
       const destinationCoords = destinationMarker.getPosition();
 
