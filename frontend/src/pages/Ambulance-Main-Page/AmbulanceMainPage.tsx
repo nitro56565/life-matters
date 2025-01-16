@@ -110,13 +110,6 @@ const AmbulanceMainPage = () => {
         position: newLocation,
         map,
         title: "Current Location",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 7,
-          fillColor: "#007AFF",
-          fillOpacity: 1,
-          strokeWeight: 1,
-        },
       });
       setSourceMarker(newSourceMarker);
       // map.panTo(new window.google.maps.LatLng(latitude, longitude));
