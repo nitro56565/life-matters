@@ -16,7 +16,7 @@ import { getSocket } from "../../components/Utils/socketService";
 import "./Ambulancemainpage.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { menuOutline } from "ionicons/icons";
-import startBackgroundTracking  from "../../components/Utils/BackgroundLocationTracking";
+import startBackgroundTracking from "../../components/Utils/BackgroundLocationTracking";
 
 const containerStyle = {
   width: "100%",
@@ -103,19 +103,13 @@ const AmbulanceMainPage = () => {
 
       if (sourceMarker) {
         sourceMarker.setMap(null);
+        setSourceMarker(null);
       }
 
       const newSourceMarker = new window.google.maps.Marker({
         position: newLocation,
         map,
         title: "Current Location",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 7,
-          fillColor: "#007AFF",
-          fillOpacity: 1,
-          strokeWeight: 1,
-        },
       });
       setSourceMarker(newSourceMarker);
       // map.panTo(new window.google.maps.LatLng(latitude, longitude));
@@ -131,14 +125,18 @@ const AmbulanceMainPage = () => {
         const sourceInput = await sourceRef.current.getInputElement();
         const destinationInput = await destinationRef.current.getInputElement();
 
+        const options = {
+          types: ["establishment"],
+          fields: ["place_id", "geometry", "name", "formatted_address"],
+          componentRestrictions: { country: "in" },
+        };
+
         const sourceAutocomplete = new window.google.maps.places.Autocomplete(
           sourceInput,
-          { types: ["geocode"] }
+          options
         );
         const destinationAutocomplete =
-          new window.google.maps.places.Autocomplete(destinationInput, {
-            types: ["geocode"],
-          });
+          new window.google.maps.places.Autocomplete(destinationInput, options);
 
         sourceAutocomplete.addListener("place_changed", () => {
           const place = sourceAutocomplete.getPlace();
