@@ -80,6 +80,11 @@ const AmbulanceMainPage = () => {
       const newLocation = { lat: latitude, lng: longitude };
       console.log("Current location new:", newLocation);
       console.log("Previous route start:", previousRouteStartRef.current);
+      const newSourceMarker = new window.google.maps.Marker({
+        position: newLocation,
+        map,
+        title: "Current Location",
+      });
 
       if (previousRouteStart) {
         const distanceFromStart = calculateDistance(
@@ -90,6 +95,7 @@ const AmbulanceMainPage = () => {
 
         if (distanceFromStart > 100) {
           if (sourceMarker) {
+            sourceMarker.setMap(null);
             sourceMarker.setPosition(newLocation);
           }
           console.log("User deviated from the route. Recalculating...");
@@ -105,12 +111,6 @@ const AmbulanceMainPage = () => {
         sourceMarker.setMap(null);
         setSourceMarker(null);
       }
-
-      const newSourceMarker = new window.google.maps.Marker({
-        position: newLocation,
-        map,
-        title: "Current Location",
-      });
       setSourceMarker(newSourceMarker);
       // map.panTo(new window.google.maps.LatLng(latitude, longitude));
     } catch (error) {
