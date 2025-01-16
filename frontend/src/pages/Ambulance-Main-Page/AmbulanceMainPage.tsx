@@ -88,7 +88,7 @@ const AmbulanceMainPage = () => {
         );
         console.log("Distance from start:", distanceFromStart);
 
-        if (distanceFromStart > 30) {
+        if (distanceFromStart > 100) {
           if (sourceMarker) {
             sourceMarker.setPosition(newLocation);
           }
