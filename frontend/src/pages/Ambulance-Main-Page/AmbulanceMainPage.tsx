@@ -16,7 +16,8 @@ import { getSocket } from "../../components/Utils/socketService";
 import "./Ambulancemainpage.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { menuOutline } from "ionicons/icons";
-import startBackgroundTracking from "../../components/Utils/BackgroundLocationTracking";
+import { startBackgroundTracking } from "../../components/Utils/BackgroundLocationTracking";
+import { enableGps } from "../../App";
 
 const containerStyle = {
   width: "100%",
@@ -72,6 +73,19 @@ const AmbulanceMainPage = () => {
   }, [router, socket]);
 
   const fetchCurrentLocation = async () => {
+    const tryAgainPrompt = async () => {
+      if (
+        window.confirm("Failed to fetch location. Would you like to try again?")
+      ) {
+        if ((await Geolocation.requestPermissions()).location !== "granted") {
+          await enableGps();
+        } else {
+          await Geolocation.requestPermissions();
+        }
+        await fetchCurrentLocation();
+      }
+    };
+
     try {
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
@@ -115,7 +129,7 @@ const AmbulanceMainPage = () => {
       // map.panTo(new window.google.maps.LatLng(latitude, longitude));
     } catch (error) {
       console.error("Error fetching current location:", error);
-      setError("Failed to get current location");
+      await tryAgainPrompt(); // Show retry popup
     }
   };
 
@@ -263,23 +277,30 @@ const AmbulanceMainPage = () => {
   };
 
   const handleStartTrip = async () => {
-    if (sourceMarker && destinationMarker) {
-      await startBackgroundTracking();
-      const sourceCoords = sourceMarker.getPosition();
-      const destinationCoords = destinationMarker.getPosition();
+    try {
+      await fetchCurrentLocation();
 
-      const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${sourceCoords.lat()},${sourceCoords.lng()}&destination=${destinationCoords.lat()},${destinationCoords.lng()}`;
-      window.open(googleMapsUrl, "_blank");
+      if (sourceMarker && destinationMarker) {
+        await startBackgroundTracking();
+        const sourceCoords = sourceMarker.getPosition();
+        const destinationCoords = destinationMarker.getPosition();
 
-      // Start live tracking after the trip starts
-      setIsTracking(true);
-      locationInterval = setInterval(() => {
-        fetchCurrentLocation();
-      }, 5000);
-    } else {
-      setError(
-        "Please set both source and destination before starting the trip."
-      );
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${sourceCoords.lat()},${sourceCoords.lng()}&destination=${destinationCoords.lat()},${destinationCoords.lng()}`;
+        window.open(googleMapsUrl, "_blank");
+
+        // Start live tracking after the trip starts
+        setIsTracking(true);
+        locationInterval = setInterval(() => {
+          fetchCurrentLocation();
+        }, 5000);
+      } else {
+        setError(
+          "Please set both source and destination before starting the trip."
+        );
+      }
+    } catch (error) {
+      console.error("Error during trip start:", error);
+      alert("Failed to start the trip. Please try again.");
     }
   };
 
