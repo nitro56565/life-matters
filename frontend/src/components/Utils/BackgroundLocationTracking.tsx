@@ -1,6 +1,4 @@
 import { Plugins, Capacitor } from "@capacitor/core";
-import { BackgroundGeolocationPlugin } from "@capacitor-community/background-geolocation";
-
 const { BackgroundGeolocation } = Plugins;
 
 export const startBackgroundTracking = async () => {

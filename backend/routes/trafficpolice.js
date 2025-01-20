@@ -99,9 +99,8 @@ router.post('/signin', async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid phone number or password.' });
         }
-
         // Generate a JWT token
-        const payload = { trafficPolice: { id: trafficPolice.id } };
+        const payload = { trafficPolice: { id: trafficPolice.id, name: trafficPolice.name, clusterZone: trafficPolice.clusterZone, } };
         const JWT_SECRET = process.env.JWT_SECRET_TOKEN;
 
         jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
@@ -112,6 +111,8 @@ router.post('/signin', async (req, res) => {
                 message: 'Sign-in successful.',
                 token,
                 userType: 'trafficPolice',
+                name: trafficPolice.name,
+                clusterZone: trafficPolice.clusterZone
             });
         });
     } catch (error) {

@@ -43,6 +43,7 @@ const SignIn: React.FC<SignInProps> = ({
     const token = localStorage.getItem("authToken");
     const userType = localStorage.getItem("userType");
     const userName = localStorage.getItem("name");
+    const clusterZone = localStorage.getItem("clusterZone");
 
     if (token && userType && userName) {
       router.push(redirectUrl, "root", "replace");
@@ -70,6 +71,7 @@ const SignIn: React.FC<SignInProps> = ({
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
         localStorage.setItem("name", name);
+        localStorage.setItem("clusterZone", JSON.stringify(response.data.clusterZone));
 
         setMessage({
           text: "Sign-in successful! Redirecting...",

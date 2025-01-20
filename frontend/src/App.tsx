@@ -38,6 +38,9 @@ const TrafficPoliceSignUp = lazy(
 const AmbulanceSignUp = lazy(
   () => import("./pages/Ambulance-SignUp/AmbulanceSignUp")
 );
+const TrafficPoliceMainPage = lazy(
+  () => import("./pages/Traffic-Police-Main-Page/TrafficPoliceMainPage")
+);
 
 setupIonicReact();
 
@@ -199,6 +202,11 @@ const App = () => {
               component={TrafficPoliceSignUp}
             />
             <Route exact path="/ambulancesignup" component={AmbulanceSignUp} />
+            <Route
+              exact
+              path="/trafficpolice-home"
+              component={TrafficPoliceMainPage}
+            />
           </Suspense>
         </IonRouterOutlet>
       </IonReactRouter>

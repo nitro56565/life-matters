@@ -111,6 +111,7 @@ const AmbulanceMainPage = () => {
           if (sourceMarker) {
             sourceMarker.setMap(null);
             sourceMarker.setPosition(newLocation);
+            socket.emit("update-location", newLocation);
           }
           console.log("User deviated from the route. Recalculating...");
           calculateRoute();

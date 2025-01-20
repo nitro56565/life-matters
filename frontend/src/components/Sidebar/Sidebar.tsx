@@ -19,6 +19,8 @@ const Sidebar: React.FC = () => {
     if (window.confirm("Are you sure you want to log out?")) {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userType");
+      localStorage.removeItem("name");
+      localStorage.removeItem("clusterZone");
       router.push("/ambulance-signin", "root", "replace");
     }
   };

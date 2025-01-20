@@ -13,6 +13,7 @@ dotenv.config();
 
 const REQUEST_TRAFFIC_SIGNALS_EVENT = 'request-traffic-signals';
 const TRAFFIC_SIGNALS_MATCHES_EVENT = 'traffic-signals-matches';
+const UPDATED_LOCATION_EVENT = 'update-location';
 export let unfilteredClusters = [];
 let cachedClusters = [];
 
@@ -94,11 +95,16 @@ io.on('connection', (socket) => {
         lng: signal.trafficSignal.geometry.coordinates[0],
       }));
       console.log('Traffic signals found:', matchedData);
-      socket.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, matchedData);
+      socket.broadcast.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, matchedData);
     } catch (error) {
       console.error('Error finding traffic signals:', error);
       socket.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, { message: 'Error fetching traffic signals' });
     }
+  });
+
+  socket.on(UPDATED_LOCATION_EVENT, (data) => {
+    console.log("Location received:", data);
+    socket.broadcast.emit(UPDATED_LOCATION_EVENT, data);
   });
 
   socket.on('disconnect', () => {
