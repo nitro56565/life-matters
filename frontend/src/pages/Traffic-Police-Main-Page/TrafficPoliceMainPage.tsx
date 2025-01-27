@@ -1,5 +1,5 @@
 import { IonContent, IonPage } from "@ionic/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { GoogleMap } from "@react-google-maps/api";
 import { BottomSheet } from "../../components/BottomSheetDrawer/BottomSheet";
 import "./TrafficPoliceMainPage.css";
@@ -8,10 +8,10 @@ import { getSocket } from "../../components/Utils/socketService";
 const TrafficPoliceMainPage: React.FC = () => {
   const [showBottomSheet, setShowBottomSheet] = useState<boolean>(true);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [AmbulanceLocation, setAmbulanceLocation] = useState<any>(null);
   const socket = getSocket();
-  const directionsRenderer = new google.maps.DirectionsRenderer();
-  const directionsService = new google.maps.DirectionsService();
+
+  const directionsRendererRef = useRef(new google.maps.DirectionsRenderer());
+  const directionsServiceRef = useRef(new google.maps.DirectionsService());
 
   const containerStyle = {
     width: "100%",
@@ -29,30 +29,42 @@ const TrafficPoliceMainPage: React.FC = () => {
     lng: centerLon,
   };
 
+  console.log(clusterZone);
+
   // Initialize directions rendering on map load
   useEffect(() => {
     if (map) {
-      directionsRenderer.setMap(map);
+      directionsRendererRef.current.setMap(map);
     }
   }, [map]);
 
-  // Listen for location updates and calculate directions
+  // Listen for traffic signal matches
   useEffect(() => {
     const handleTrafficSignals = (signals) => {
-      // Check if any signal matches the center
-      const isMatch = signals.some(
-        (signal) => JSON.stringify(signal) === JSON.stringify(center)
+      const isMatch = clusterZone?.some((zone) =>
+        signals.some(
+          (signal) => signal.lat === zone.lat && signal.lng === zone.lon
+        )
       );
 
       if (isMatch) {
-        // Listen for location updates only if there's a match
+        console.log("Match found with traffic signals and cluster zone.");
+        // Clear any existing listeners to avoid duplication
+        socket.off("update-location");
+
+        // Listen for location updates and calculate directions
         socket.on("update-location", (data) => {
           console.log("Received location update:", data);
-          setAmbulanceLocation(data);
 
           if (data && map) {
-            // Calculate route
-            directionsService.route(
+            // Clear previous route
+            directionsRendererRef.current.setDirections({
+              routes: [],
+              request: undefined,
+            }); // Use an empty routes array
+
+            // Calculate new route
+            directionsServiceRef.current.route(
               {
                 origin: { lat: data.lat, lng: data.lng },
                 destination: center,
@@ -60,7 +72,7 @@ const TrafficPoliceMainPage: React.FC = () => {
               },
               (result, status) => {
                 if (status === google.maps.DirectionsStatus.OK) {
-                  directionsRenderer.setDirections(result);
+                  directionsRendererRef.current.setDirections(result);
                 } else {
                   console.error("Error calculating directions:", status);
                 }
@@ -68,9 +80,23 @@ const TrafficPoliceMainPage: React.FC = () => {
             );
           }
         });
+      } else {
+        console.log("No match found between traffic signals and cluster zone.");
+        // Reset the map to its default state
+        if (map) {
+          directionsRendererRef.current.setDirections({
+            routes: [],
+            request: undefined,
+          }); // Clear directions
+          map.setCenter(center); // Reset to center
+          map.setZoom(15); // Reset zoom level
+        }
+        // Ensure no location updates are processed
+        socket.off("update-location");
       }
     };
 
+    // Listen for traffic signals matching events
     socket.on("traffic-signals-matches", handleTrafficSignals);
 
     return () => {
@@ -78,7 +104,7 @@ const TrafficPoliceMainPage: React.FC = () => {
       socket.off("traffic-signals-matches", handleTrafficSignals);
       socket.off("update-location");
     };
-  }, [map, socket, center]);
+  }, [map, center, clusterZone, socket]);
 
   // Add a circle to the map when the map instance is loaded
   useEffect(() => {
