@@ -83,6 +83,8 @@ router.post('/signin', async (req, res) => {
             ambulance: {
                 id: ambulance.id,
                 name: ambulance.name,
+                vehicleNumber: ambulance.vehicleNumber,
+                phone: ambulance.phone,
             },
         };
 

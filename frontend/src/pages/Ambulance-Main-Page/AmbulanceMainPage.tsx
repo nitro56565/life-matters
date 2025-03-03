@@ -47,30 +47,17 @@ const AmbulanceMainPage = () => {
   const previousRouteStartRef = useRef(previousRouteStart);
   const socket = getSocket();
   let locationInterval: NodeJS.Timeout;
-
-  useEffect(() => {
-    previousRouteStartRef.current = previousRouteStart;
-  }, [previousRouteStart]);
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
     if (
-      !localStorage.getItem("authToken") &&
+      !token &&
       !localStorage.getItem("userType")
     ) {
       router.push("/", "root", "replace");
     }
-
-    socket.on("traffic-signals-response", (data: any) => {
-      console.log("Traffic signals data received:", data);
-    });
-
-    return () => {
-      socket.off("traffic-signals-response");
-      if (locationInterval) {
-        clearInterval(locationInterval); // Clean up the interval
-      }
-    };
-  }, [router, socket]);
+    previousRouteStartRef.current = previousRouteStart;
+  }, [router, previousRouteStart]);
 
   const fetchCurrentLocation = async () => {
     const tryAgainPrompt = async () => {
@@ -269,7 +256,7 @@ const AmbulanceMainPage = () => {
           }
 
           console.log("Generated high-density points:", highDensityPoints);
-          socket.emit("request-traffic-signals", highDensityPoints);
+          socket.emit("request-traffic-signals", highDensityPoints, token);
         } else {
           setError("Directions request failed due to " + status);
         }

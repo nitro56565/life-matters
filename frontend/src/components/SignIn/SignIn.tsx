@@ -30,7 +30,7 @@ const SignIn: React.FC<SignInProps> = ({
     text: string;
     type: "error" | "success";
   } | null>(null);
-  const [isFormValid, setIsFormValid] = useState(true); // Track form validation
+  const [isFormValid, setIsFormValid] = useState(true);
   const router = useIonRouter();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -43,7 +43,6 @@ const SignIn: React.FC<SignInProps> = ({
     const token = localStorage.getItem("authToken");
     const userType = localStorage.getItem("userType");
     const userName = localStorage.getItem("name");
-    const clusterZone = localStorage.getItem("clusterZone");
 
     if (token && userType && userName) {
       router.push(redirectUrl, "root", "replace");

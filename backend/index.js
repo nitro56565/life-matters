@@ -10,6 +10,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { findNearbyTrafficSignals } from './utils/trafficSignalMatcher.js';
 import { createClusters, clusters } from './utils/trafficSignalClusters.js';
 import { redisClient, setCache } from './lib/redis.js';
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ const UPDATED_LOCATION_EVENT = 'update-location';
 export let unfilteredClusters = [];
 let cachedClusters = [];
 
-redisClient.connect(()=>console.log("🔹 Redis connected!"));
+redisClient.connect(() => console.log("🔹 Redis connected!"));
 
 redisClient.ping()
   .then((res) => console.log("✅ Redis Ping Response:", res))
@@ -46,7 +47,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "*", 
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -96,7 +97,7 @@ io.on('connection', (socket) => {
   console.log('Client socket ID:', socket.id);
 
   // Handle traffic signal requests
-  socket.on(REQUEST_TRAFFIC_SIGNALS_EVENT, async (routePoints) => {
+  socket.on(REQUEST_TRAFFIC_SIGNALS_EVENT, async (routePoints, token) => {
     console.log('Received request for traffic signals.');
     try {
       const signals = await findNearbyTrafficSignals(routePoints);
@@ -106,6 +107,16 @@ io.on('connection', (socket) => {
       }));
       console.log('Traffic signals found:', matchedData);
       socket.broadcast.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, matchedData);
+      //redis data update
+      const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+      let key = `ambulance:${decoded.ambulance.id}`;
+      await redisClient.hset(key, {
+        traffic_signals: JSON.stringify(matchedData),
+        ambulance_number: decoded.ambulance.vehicleNumber,
+        driver_name: decoded.ambulance.name,
+        driver_number: decoded.ambulance.phone,
+      });
+      await redisClient.expire(key, 3600);
     } catch (error) {
       console.error('Error finding traffic signals:', error);
       socket.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, { message: 'Error fetching traffic signals' });
