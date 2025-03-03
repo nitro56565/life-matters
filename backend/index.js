@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { connection } from './data.js';
+import { connection } from './lib/data.js';
 import { TrafficSignal } from './models/TrafficSignal.js';
 import ambulanceRoutes from './routes/ambulance.js';
 import trafficPoliceRoutes from './routes/trafficpolice.js';
@@ -9,6 +9,8 @@ import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { findNearbyTrafficSignals } from './utils/trafficSignalMatcher.js';
 import { createClusters, clusters } from './utils/trafficSignalClusters.js';
+import { redisClient, setCache } from './lib/redis.js';
+
 dotenv.config();
 
 const REQUEST_TRAFFIC_SIGNALS_EVENT = 'request-traffic-signals';
@@ -17,6 +19,14 @@ const UPDATED_LOCATION_EVENT = 'update-location';
 export let unfilteredClusters = [];
 let cachedClusters = [];
 
+redisClient.connect(()=>console.log("🔹 Redis connected!"));
+
+redisClient.ping()
+  .then((res) => console.log("✅ Redis Ping Response:", res))
+  .catch((err) => console.error("❌ Redis Connection Error:", err));
+
+
+setCache('testKey', 'Hello, Redis!');
 
 export const initializeClusters = async () => {
   try {
