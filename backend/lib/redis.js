@@ -3,13 +3,19 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const redisClient = new Redis({
+let redisClient;
+
+if (process.env.NODE_ENV === 'production') {
+  redisClient = new Redis(process.env.REDIS_INTERNAL_URL);
+} else {
+  redisClient = new Redis({
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
     tls: {},
-});
+  });
+}
 
 // Example Redis Functions
 async function setCache(key, value, expiration = 3600) {
