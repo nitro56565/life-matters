@@ -3,8 +3,13 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useHistory } from "react-router-dom";
 import { IonButton, IonInput, IonItem, IonPage, IonText } from "@ionic/react";
 import "./SetNewPasswordPage.css";
+import axios from "axios";
 
-const SetNewPassword: React.FC = () => {
+interface SetNewPasswordProps {
+  phone: string;
+}
+
+const SetNewPassword: React.FC <SetNewPasswordProps> = ({ phone}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     password: "",
@@ -31,6 +36,36 @@ const SetNewPassword: React.FC = () => {
     setErrorMessage("");
     setSuccessMessage("");
     const { password, newpassword } = formData;
+  const phone = localStorage.getItem("phone"); 
+
+  if (!phone) {
+    setErrorMessage("Phone number is missing. Try again.");
+    return;
+  }
+
+  if (password !== newpassword) {
+    setErrorMessage("Passwords do not match.");
+    return;
+  }
+  console.log(phone)
+
+  try {
+    const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/setnewpassword`, {
+      phone,
+      newPassword: password,
+    });
+
+    if (response.data.success) {
+      setSuccessMessage("Password changed successfully! Redirecting...");
+      setTimeout(() => {
+        history.push("/home");
+      }, 2000);
+    } else {
+      setErrorMessage(response.data.message || "Failed to update password.");
+    }
+  } catch (error) {
+    setErrorMessage("An error occurred. Please try again.");
+  }
     // if(password==newpassword){
     console.log(formData);
     history.push("/home");

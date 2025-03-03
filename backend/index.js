@@ -4,6 +4,7 @@ import { connection } from './data.js';
 import { TrafficSignal } from './models/TrafficSignal.js';
 import ambulanceRoutes from './routes/ambulance.js';
 import trafficPoliceRoutes from './routes/trafficpolice.js';
+import forgotPass from './routes/forgotPass.js'
 import dotenv from 'dotenv';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
@@ -49,6 +50,7 @@ app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 // API Routes
 app.use('/api/ambulance', ambulanceRoutes);
 app.use('/api/trafficpolice', trafficPoliceRoutes);
+app.use('/api/otp',forgotPass)
 
 
 // Sample routes

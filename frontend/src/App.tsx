@@ -66,6 +66,7 @@ export const enableGps = async () => {
 
 const App = () => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+    const [phone, setPhone] = useState("");
 
   // Load Google Maps API
   const loadGoogleMapsApi = () => {
@@ -173,7 +174,7 @@ const App = () => {
   }
 
   return (
-    <IonApp>
+       <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Suspense fallback={<div>Loading...</div>}>
@@ -194,8 +195,12 @@ const App = () => {
               />
             </Route>
             <Route exact path="/ambulance-home" component={AmbulanceMainPage} />
-            <Route exact path="/forgot-password" component={ForgotPassword} />
-            <Route exact path="/set-new-password" component={SetNewPassword} />
+            <Route exact path="/forgot-password">
+            <ForgotPassword phone={phone} setPhone={setPhone}/>
+            </Route>
+            <Route exact path="/set-new-password">
+              <SetNewPassword phone={phone}/>
+            </Route>
             <Route
               exact
               path="/trafficpolicesignup"
@@ -210,7 +215,7 @@ const App = () => {
           </Suspense>
         </IonRouterOutlet>
       </IonReactRouter>
-    </IonApp>
+    </IonApp>  
   );
 };
 

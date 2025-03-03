@@ -53,16 +53,9 @@
   /* Forgot password link */
   .forgot-password {
     text-align: right;
-    margin-bottom: 16px;
-  }
-  
-  .forgot-password a {
     color: #7326F1;
-    text-decoration: none;
-  }
-  
-  .forgot-password a:hover {
-    text-decoration: underline;
+    background: none;
+    font-size: 12px;
   }
   
   /* Sign-in button */

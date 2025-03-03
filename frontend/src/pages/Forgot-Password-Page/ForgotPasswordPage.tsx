@@ -13,28 +13,82 @@ import {
 import { useHistory } from "react-router-dom";
 import "./ForgotPasswordPage.css";
 import { IonInputCustomEvent } from "@ionic/core";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import "../Forgot-Password-Page/ForgotPasswordPage.css"
+
+interface ForgotPasswordProps {
+  phone: string;
+  setPhone: React.Dispatch<React.SetStateAction<string>>;
+}
 
 // Utility function for phone validation
 const validatePhone = (phone: string) => /^\d{10}$/.test(phone);
 
-const ForgotPassword: React.FC = () => {
+const ForgotPassword: React.FC<ForgotPasswordProps> = ({ phone, setPhone }) => {
   const history = useHistory();
   const [isOtpRequested, setIsOtpRequested] = useState(false);
-  const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLIonInputElement | null)[]>([]);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const redirectUrl = queryParams.get("redirectUrl") || "/default-path"; // Default if not provided
 
-  // Request OTP
-  const handleRequestOtp = () => {
+console.log("Redirect URL:", redirectUrl);
+
+  // Function to request OTP from backend
+  const handleRequestOtp = async () => {
     if (validatePhone(phone)) {
       setPhoneError(null);
       setIsOtpRequested(true);
     } else {
       setPhoneError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(`${BACKEND_URL}/api/otp/sendotp`, {
+        phone,
+      });
+
+      if (data.success) {
+        setIsOtpRequested(true);
+      } else {
+        setPhoneError(data.message || "Failed to send OTP.");
+      }
+    } catch (error) {
+      setPhoneError("Server error. Try again later.");
     }
   };
 
+  // Function to verify OTP
+  const handleVerifyOtp = async () => {
+    if (otp.some((digit) => digit.trim() === "")) {
+      setOtpError("Please enter the complete OTP.");
+      return;
+    }
+    setOtpError(null);
+
+    try {
+      const { data } = await axios.post(`${BACKEND_URL}/api/otp/verifyotp`, {
+        phone,
+        otp: otp.join(""),
+      });
+
+      if (data.success) {
+        history.push("/set-new-password");
+      } else {
+        setOtpError("Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      setOtpError("Server error. Try again later.");
+    }
+  };
+
+  // Handle OTP input change
   const handleOtpInput = (
     e: IonInputCustomEvent<InputInputEventDetail>,
     index: number
@@ -128,13 +182,14 @@ const ForgotPassword: React.FC = () => {
                     </IonCol>
                   ))}
                 </IonRow>
+                {otpError && <IonText color="danger">{otpError}</IonText>}
               </IonGrid>
             )}
             <IonButton
               type="button"
               expand="block"
               className="forgot-password-button"
-              onClick={handleButtonClick}
+              onClick={isOtpRequested ? handleVerifyOtp : handleRequestOtp}
             >
               {isOtpRequested ? "Validate OTP" : "Request OTP"}
             </IonButton>

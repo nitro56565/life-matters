@@ -54,6 +54,14 @@ const SignIn: React.FC<SignInProps> = ({
     setShowPassword((prev) => !prev);
   };
 
+  const handleForgotPassword = () => {
+    router.push(
+      `/forgot-password?redirectUrl=${encodeURIComponent(redirectUrl)}`,
+      "forward",
+      "push"
+    );
+  };
+
   const validatePhone = (phone: string) => {
     // Validate phone: Should be exactly 10 digits and contain only numbers
     return /^\d{10}$/.test(phone);
@@ -71,7 +79,10 @@ const SignIn: React.FC<SignInProps> = ({
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
         localStorage.setItem("name", name);
-        localStorage.setItem("clusterZone", JSON.stringify(response.data.clusterZone));
+        localStorage.setItem(
+          "clusterZone",
+          JSON.stringify(response.data.clusterZone)
+        );
 
         setMessage({
           text: "Sign-in successful! Redirecting...",
@@ -148,10 +159,9 @@ const SignIn: React.FC<SignInProps> = ({
                   name="phone"
                   value={phone}
                   onIonInput={(e) => {
-                    const input = (e.target as unknown as HTMLInputElement).value.replace(
-                      /\D/g,
-                      ""
-                    );
+                    const input = (
+                      e.target as unknown as HTMLInputElement
+                    ).value.replace(/\D/g, "");
                     setPhone(input);
                   }}
                   onKeyDown={(e) => {
@@ -194,7 +204,13 @@ const SignIn: React.FC<SignInProps> = ({
               </IonItem>
 
               <div className="forgot-password">
-                <a href="/forgot-password">Forgot password?</a>
+                <IonButton
+                  fill="clear"
+                  className="forgot-password"
+                  onClick={handleForgotPassword}
+                >
+                  Forgot password?
+                </IonButton>
               </div>
               <IonButton type="submit" expand="block" className="signin-button">
                 Sign In
