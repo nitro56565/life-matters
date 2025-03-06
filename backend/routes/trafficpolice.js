@@ -109,6 +109,7 @@ router.post('/signin', async (req, res) => {
             // Respond with the token and user type
             res.status(200).json({
                 message: 'Sign-in successful.',
+                trafficPoliceId: trafficPolice.id,
                 token,
                 userType: 'trafficPolice',
                 name: trafficPolice.name,

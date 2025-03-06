@@ -4,12 +4,14 @@ import { connection } from './lib/data.js';
 import { TrafficSignal } from './models/TrafficSignal.js';
 import ambulanceRoutes from './routes/ambulance.js';
 import trafficPoliceRoutes from './routes/trafficpolice.js';
+import redisRoutes from './routes/redis.route.js'
 import dotenv from 'dotenv';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { findNearbyTrafficSignals } from './utils/trafficSignalMatcher.js';
 import { createClusters, clusters } from './utils/trafficSignalClusters.js';
 import { redisClient, setCache } from './lib/redis.js';
+import TrafficPoliceData from './models/TrafficPoliceData.js'
 import jwt from "jsonwebtoken";
 
 dotenv.config();
@@ -43,6 +45,38 @@ export const initializeClusters = async () => {
 // Initialize clusters on startup
 initializeClusters();
 
+// Function to create trafficPolice data using matchedData and ambulanceId
+const createTrafficPoliceData = async (matchedData, ambulanceId) => {
+  try {
+    // Fetch all traffic police officers
+    const trafficPoliceOfficers = await TrafficPoliceData.find({});
+
+    let trafficPoliceRedisData = [];
+
+    trafficPoliceOfficers.forEach((officer) => {
+      // Check if any signal in matchedData exists in officer's clusterZone
+      const isMatch = officer.clusterZone.some((zone) =>
+        matchedData.some((signal) => signal.lat === zone.lat && signal.lng === zone.lon)
+      );
+
+      if (isMatch) {
+        trafficPoliceRedisData.push({
+          trafficPoliceId: officer._id.toString(),
+          ambulanceId: ambulanceId,
+        });
+      }
+    });
+
+    console.log("Traffic Police Redis Data:", trafficPoliceRedisData);
+
+    return trafficPoliceRedisData; // Return the matched data if needed
+  } catch (error) {
+    console.error("Error creating traffic police data:", error);
+    return [];
+  }
+};
+
+
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
@@ -60,6 +94,7 @@ app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 // API Routes
 app.use('/api/ambulance', ambulanceRoutes);
 app.use('/api/trafficpolice', trafficPoliceRoutes);
+app.use('/redis/api', redisRoutes);
 
 
 // Sample routes
@@ -117,6 +152,35 @@ io.on('connection', (socket) => {
         driver_number: decoded.ambulance.phone,
       });
       await redisClient.expire(key, 3600);
+      // create traffic police data
+      const trafficPoliceData = await createTrafficPoliceData(matchedData, decoded.ambulance.id);
+      if (trafficPoliceData.length > 0) {
+        console.log(trafficPoliceData.length);
+        for (const entry of trafficPoliceData) {
+          let policeKey = `trafficPolice:${entry.trafficPoliceId}`;
+      
+          // Get existing ambulance IDs from Redis
+          let existingAmbulanceIds = await redisClient.hget(policeKey, "ambulance_ids");
+          
+          // Parse existing IDs or initialize an empty array
+          let ambulanceIds = existingAmbulanceIds ? JSON.parse(existingAmbulanceIds) : [];
+      
+          // Append new ambulance ID if not already present
+          if (!ambulanceIds.includes(entry.ambulanceId)) {
+            ambulanceIds.push(entry.ambulanceId);
+          }
+      
+          // Store updated list back in Redis
+          await redisClient.hset(policeKey, {
+            ambulance_ids: JSON.stringify(ambulanceIds), // Store as a JSON string
+          });
+          socket.broadcast.emit('police-id-update', entry.trafficPoliceId);
+          await redisClient.expire(policeKey, 3600); // Set expiry if needed
+          console.log(`✅ Updated Redis: ${policeKey} ->`, ambulanceIds);
+        }
+      } else {
+        console.log("⚠️ No matching traffic police data found.");
+      }      
     } catch (error) {
       console.error('Error finding traffic signals:', error);
       socket.emit(TRAFFIC_SIGNALS_MATCHES_EVENT, { message: 'Error fetching traffic signals' });

@@ -45,7 +45,6 @@ router.post('/signup', async (req, res) => {
         jwt.sign(
             payload,
             JWT_SECRET,
-            { expiresIn: '1h' }, // Token expiration time
             (err, token) => {
                 if (err) throw err;
                 res.json({ token });
@@ -88,7 +87,7 @@ router.post('/signin', async (req, res) => {
             },
         };
 
-        jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+        jwt.sign(payload, JWT_SECRET, (err, token) => {
             if (err) throw err;
             // Return the token and user type
             res.json({ token, userType: 'ambulance', name: ambulance.name });

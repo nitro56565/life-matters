@@ -64,13 +64,16 @@ const SignIn: React.FC<SignInProps> = ({
     try {
       const apiUrl = `${BACKEND_URL}${apiEndpoint}`;
       const response = await axios.post(apiUrl, { phone, password });
-
       if (response.status === 200) {
-        const { token, userType, name } = response.data;
+        const { token, userType, name, trafficPoliceId } = response.data;
+        localStorage.setItem("trafficPoliceId", trafficPoliceId);
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
         localStorage.setItem("name", name);
-        localStorage.setItem("clusterZone", JSON.stringify(response.data.clusterZone));
+        localStorage.setItem(
+          "clusterZone",
+          JSON.stringify(response.data.clusterZone)
+        );
 
         setMessage({
           text: "Sign-in successful! Redirecting...",
@@ -147,10 +150,9 @@ const SignIn: React.FC<SignInProps> = ({
                   name="phone"
                   value={phone}
                   onIonInput={(e) => {
-                    const input = (e.target as unknown as HTMLInputElement).value.replace(
-                      /\D/g,
-                      ""
-                    );
+                    const input = (
+                      e.target as unknown as HTMLInputElement
+                    ).value.replace(/\D/g, "");
                     setPhone(input);
                   }}
                   onKeyDown={(e) => {
