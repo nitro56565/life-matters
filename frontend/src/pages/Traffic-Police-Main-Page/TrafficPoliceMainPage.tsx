@@ -45,10 +45,9 @@ const TrafficPoliceMainPage: React.FC = () => {
 
     try {
       // Send the trafficPoliceId in the POST request body
-      const { data } = await axios.post(
-        `${BACKEND_URL}/redis/api/trafficpolice/full-data`,
-        { trafficPoliceId }
-      );
+      const { data } = await axios.post(`${BACKEND_URL}/redis/api/trafficpolice/full-data`, {
+        trafficPoliceId,
+      });
       console.log("Aggregated ambulance data:", data.ambulanceData);
       setAmbulanceData(data.ambulanceData); // update state with response
     } catch (error) {
@@ -95,9 +94,7 @@ const TrafficPoliceMainPage: React.FC = () => {
   useEffect(() => {
     const handleTrafficSignals = (signals) => {
       const isMatch = clusterZone?.some((zone) =>
-        signals.some(
-          (signal) => signal.lat === zone.lat && signal.lng === zone.lon
-        )
+        signals.some((signal) => signal.lat === zone.lat && signal.lng === zone.lon)
       );
 
       if (isMatch) {
@@ -200,11 +197,7 @@ const TrafficPoliceMainPage: React.FC = () => {
         </div>
 
         {/* Bottom Sheet */}
-        <BottomSheet
-          isOpen={showBottomSheet}
-          close={handleClose}
-          ambulanceData={ambulanceData}
-        />
+        <BottomSheet isOpen={showBottomSheet} close={handleClose} ambulanceData={ambulanceData} />
       </IonContent>
     </IonPage>
   );

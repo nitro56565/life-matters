@@ -99,7 +99,7 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 15px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
 }
 
@@ -123,15 +123,15 @@
 
 .route-btn {
   width: 100%;
-  background-color: #7326F1;
+  background-color: #7326f1;
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
 }
 
-.header{
+.header {
   display: flex;
   justify-content: center;
 }

@@ -4,11 +4,7 @@ import { IonReactRouter } from "@ionic/react-router";
 import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
-import {
-  AndroidSettings,
-  IOSSettings,
-  NativeSettings,
-} from "capacitor-native-settings";
+import { AndroidSettings, IOSSettings, NativeSettings } from "capacitor-native-settings";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -23,21 +19,11 @@ import "./theme/variables.css";
 /* Lazy-loaded pages */
 const Home = lazy(() => import("./pages/Home/Home"));
 const SignIn = lazy(() => import("./components/SignIn/SignIn"));
-const AmbulanceMainPage = lazy(
-  () => import("./pages/Ambulance-Main-Page/AmbulanceMainPage")
-);
-const ForgotPassword = lazy(
-  () => import("./pages/Forgot-Password-Page/ForgotPasswordPage")
-);
-const SetNewPassword = lazy(
-  () => import("./pages/set-new-password/SetNewPasswordPage")
-);
-const TrafficPoliceSignUp = lazy(
-  () => import("./pages/Traffic-Police-SignUp/TrafficPoliceSignUp")
-);
-const AmbulanceSignUp = lazy(
-  () => import("./pages/Ambulance-SignUp/AmbulanceSignUp")
-);
+const AmbulanceMainPage = lazy(() => import("./pages/Ambulance-Main-Page/AmbulanceMainPage"));
+const ForgotPassword = lazy(() => import("./pages/Forgot-Password-Page/ForgotPasswordPage"));
+const SetNewPassword = lazy(() => import("./pages/set-new-password/SetNewPasswordPage"));
+const TrafficPoliceSignUp = lazy(() => import("./pages/Traffic-Police-SignUp/TrafficPoliceSignUp"));
+const AmbulanceSignUp = lazy(() => import("./pages/Ambulance-SignUp/AmbulanceSignUp"));
 const TrafficPoliceMainPage = lazy(
   () => import("./pages/Traffic-Police-Main-Page/TrafficPoliceMainPage")
 );
@@ -79,9 +65,7 @@ const App = () => {
         `script[src^="https://maps.googleapis.com/maps/api/js"]`
       );
       if (existingScript) {
-        existingScript.addEventListener("load", () =>
-          resolve(window.google.maps)
-        );
+        existingScript.addEventListener("load", () => resolve(window.google.maps));
         existingScript.addEventListener("error", () =>
           reject(new Error("Failed to load Google Maps API"))
         );
@@ -142,9 +126,7 @@ const App = () => {
   const openSettings = (app = false) => {
     console.log("open settings...");
     return NativeSettings.open({
-      optionAndroid: app
-        ? AndroidSettings.ApplicationDetails
-        : AndroidSettings.Location,
+      optionAndroid: app ? AndroidSettings.ApplicationDetails : AndroidSettings.Location,
       optionIOS: app ? IOSSettings.App : IOSSettings.LocationServices,
     });
   };
@@ -196,17 +178,9 @@ const App = () => {
             <Route exact path="/ambulance-home" component={AmbulanceMainPage} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
             <Route exact path="/set-new-password" component={SetNewPassword} />
-            <Route
-              exact
-              path="/trafficpolicesignup"
-              component={TrafficPoliceSignUp}
-            />
+            <Route exact path="/trafficpolicesignup" component={TrafficPoliceSignUp} />
             <Route exact path="/ambulancesignup" component={AmbulanceSignUp} />
-            <Route
-              exact
-              path="/trafficpolice-home"
-              component={TrafficPoliceMainPage}
-            />
+            <Route exact path="/trafficpolice-home" component={TrafficPoliceMainPage} />
           </Suspense>
         </IonRouterOutlet>
       </IonReactRouter>

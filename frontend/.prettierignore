@@ -1,0 +1,27 @@
+# Build output
+dist
+build
+
+# Node modules
+node_modules
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*.local
+
+# Vite cache
+.vite
+
+# IDE folders
+.vscode
+.idea
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage

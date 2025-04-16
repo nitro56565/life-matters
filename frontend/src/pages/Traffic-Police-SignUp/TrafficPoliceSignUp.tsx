@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  IonButton,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonPage,
-  IonText,
-} from "@ionic/react";
+import { IonButton, IonContent, IonInput, IonItem, IonPage, IonText } from "@ionic/react";
 import { useIonRouter } from "@ionic/react";
 import TrafficZoneCluster from "../../components/TrafficZoneCluster/TrafficZoneCluster";
 import "./TrafficPoliceSignUp.css";
@@ -77,10 +70,7 @@ const TrafficPoliceSignUp: React.FC = () => {
       };
       console.log(data);
 
-      const response = await axios.post(
-        `${BACKEND_URL}/api/trafficpolice/signup`,
-        data
-      );
+      const response = await axios.post(`${BACKEND_URL}/api/trafficpolice/signup`, data);
 
       if (response.data && response.data.message) {
         setMessage({
@@ -115,9 +105,7 @@ const TrafficPoliceSignUp: React.FC = () => {
               <h1>Sign Up</h1>
             </div>
             {message && (
-              <IonText
-                color={message.type === "success" ? "success" : "danger"}
-              >
+              <IonText color={message.type === "success" ? "success" : "danger"}>
                 {message.text}
               </IonText>
             )}
@@ -129,9 +117,7 @@ const TrafficPoliceSignUp: React.FC = () => {
                   type="text"
                   className="signup-input"
                   value={name}
-                  onIonInput={(e) =>
-                    setName((e.target as unknown as HTMLInputElement).value)
-                  }
+                  onIonInput={(e) => setName((e.target as unknown as HTMLInputElement).value)}
                   required
                 />
               </IonItem>
@@ -144,9 +130,10 @@ const TrafficPoliceSignUp: React.FC = () => {
                   className="signup-input phone-input"
                   value={phone}
                   onIonInput={(e) => {
-                    const input = (
-                      e.target as unknown as HTMLInputElement
-                    ).value.replace(/\D/g, "");
+                    const input = (e.target as unknown as HTMLInputElement).value.replace(
+                      /\D/g,
+                      ""
+                    );
                     if (input.length <= 10) setPhone(input);
                   }}
                   onKeyDown={(e) => {
@@ -171,9 +158,7 @@ const TrafficPoliceSignUp: React.FC = () => {
                   type="password"
                   className="signup-input password-input"
                   value={password}
-                  onIonInput={(e) =>
-                    setPassword((e.target as unknown as HTMLInputElement).value)
-                  }
+                  onIonInput={(e) => setPassword((e.target as unknown as HTMLInputElement).value)}
                   required
                 />
               </IonItem>

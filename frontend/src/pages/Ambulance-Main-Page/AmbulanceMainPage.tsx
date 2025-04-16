@@ -50,10 +50,7 @@ const AmbulanceMainPage = () => {
   const token = localStorage.getItem("authToken");
 
   useEffect(() => {
-    if (
-      !token &&
-      !localStorage.getItem("userType")
-    ) {
+    if (!token && !localStorage.getItem("userType")) {
       router.push("/", "root", "replace");
     }
     previousRouteStartRef.current = previousRouteStart;
@@ -61,9 +58,7 @@ const AmbulanceMainPage = () => {
 
   const fetchCurrentLocation = async () => {
     const tryAgainPrompt = async () => {
-      if (
-        window.confirm("Failed to fetch location. Would you like to try again?")
-      ) {
+      if (window.confirm("Failed to fetch location. Would you like to try again?")) {
         if ((await Geolocation.requestPermissions()).location !== "granted") {
           await enableGps();
         } else {
@@ -88,10 +83,7 @@ const AmbulanceMainPage = () => {
       });
 
       if (previousRouteStart) {
-        const distanceFromStart = calculateDistance(
-          previousRouteStartRef.current,
-          newLocation
-        );
+        const distanceFromStart = calculateDistance(previousRouteStartRef.current, newLocation);
         console.log("Distance from start:", distanceFromStart);
 
         if (distanceFromStart > 100) {
@@ -103,9 +95,7 @@ const AmbulanceMainPage = () => {
           console.log("User deviated from the route. Recalculating...");
           calculateRoute();
         } else {
-          console.log(
-            "User is within the allowed radius from the start point."
-          );
+          console.log("User is within the allowed radius from the start point.");
         }
       }
 
@@ -133,12 +123,11 @@ const AmbulanceMainPage = () => {
           componentRestrictions: { country: "in" },
         };
 
-        const sourceAutocomplete = new window.google.maps.places.Autocomplete(
-          sourceInput,
+        const sourceAutocomplete = new window.google.maps.places.Autocomplete(sourceInput, options);
+        const destinationAutocomplete = new window.google.maps.places.Autocomplete(
+          destinationInput,
           options
         );
-        const destinationAutocomplete =
-          new window.google.maps.places.Autocomplete(destinationInput, options);
 
         sourceAutocomplete.addListener("place_changed", () => {
           const place = sourceAutocomplete.getPlace();
@@ -229,12 +218,7 @@ const AmbulanceMainPage = () => {
               pointCounter++;
 
               // Add interpolated points
-              const interpolated = interpolatePoints(
-                start,
-                end,
-                10,
-                pointCounter
-              );
+              const interpolated = interpolatePoints(start, end, 10, pointCounter);
               densePath.push(...interpolated);
               pointCounter += interpolated.length;
             }
@@ -282,9 +266,7 @@ const AmbulanceMainPage = () => {
           fetchCurrentLocation();
         }, 5000);
       } else {
-        setError(
-          "Please set both source and destination before starting the trip."
-        );
+        setError("Please set both source and destination before starting the trip.");
       }
     } catch (error) {
       console.error("Error during trip start:", error);
@@ -302,10 +284,7 @@ const AmbulanceMainPage = () => {
 
     const a =
       Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-      Math.cos(lat1) *
-        Math.cos(lat2) *
-        Math.sin(deltaLng / 2) *
-        Math.sin(deltaLng / 2);
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -325,11 +304,7 @@ const AmbulanceMainPage = () => {
         <IonContent id="main-content">
           <div className="container">
             <div className="header">
-              <IonButton
-                onClick={openMenu}
-                fill="clear"
-                className="menu-button"
-              >
+              <IonButton onClick={openMenu} fill="clear" className="menu-button">
                 <IonIcon icon={menuOutline} />
               </IonButton>
               <h1 className="title">Ambulance Portal</h1>
@@ -374,11 +349,7 @@ const AmbulanceMainPage = () => {
 
             <div className="button-container">
               <div>
-                <IonIcon
-                  onClick={fetchCurrentLocation}
-                  className="locate-icon"
-                  icon={locate}
-                />
+                <IonIcon onClick={fetchCurrentLocation} className="locate-icon" icon={locate} />
               </div>
               <button className="route-button" onClick={calculateRoute}>
                 Show Route
@@ -404,12 +375,8 @@ const AmbulanceMainPage = () => {
                 onLoad={(mapInstance: any) => setMap(mapInstance)}
                 options={{ gestureHandling: "greedy" }}
               >
-                {sourceMarker && (
-                  <Marker position={sourceMarker.getPosition()} />
-                )}
-                {destinationMarker && (
-                  <Marker position={destinationMarker.getPosition()} />
-                )}
+                {sourceMarker && <Marker position={sourceMarker.getPosition()} />}
+                {destinationMarker && <Marker position={destinationMarker.getPosition()} />}
                 {directions && <DirectionsRenderer directions={directions} />}
               </GoogleMap>
             </div>

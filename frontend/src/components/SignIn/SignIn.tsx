@@ -2,14 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import axios from "axios";
 import { useIonRouter } from "@ionic/react";
-import {
-  IonButton,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonPage,
-  IonText,
-} from "@ionic/react";
+import { IonButton, IonContent, IonInput, IonItem, IonPage, IonText } from "@ionic/react";
 import "./SignIn.css";
 
 interface SignInProps {
@@ -18,11 +11,7 @@ interface SignInProps {
   signupLink: string;
 }
 
-const SignIn: React.FC<SignInProps> = ({
-  apiEndpoint,
-  redirectUrl,
-  signupLink,
-}) => {
+const SignIn: React.FC<SignInProps> = ({ apiEndpoint, redirectUrl, signupLink }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -70,10 +59,7 @@ const SignIn: React.FC<SignInProps> = ({
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", userType);
         localStorage.setItem("name", name);
-        localStorage.setItem(
-          "clusterZone",
-          JSON.stringify(response.data.clusterZone)
-        );
+        localStorage.setItem("clusterZone", JSON.stringify(response.data.clusterZone));
 
         setMessage({
           text: "Sign-in successful! Redirecting...",
@@ -133,9 +119,7 @@ const SignIn: React.FC<SignInProps> = ({
               <h1>Sign In</h1>
             </div>
             {message && (
-              <IonText
-                color={message.type === "success" ? "success" : "danger"}
-              >
+              <IonText color={message.type === "success" ? "success" : "danger"}>
                 {message.text}
               </IonText>
             )}
@@ -150,17 +134,16 @@ const SignIn: React.FC<SignInProps> = ({
                   name="phone"
                   value={phone}
                   onIonInput={(e) => {
-                    const input = (
-                      e.target as unknown as HTMLInputElement
-                    ).value.replace(/\D/g, "");
+                    const input = (e.target as unknown as HTMLInputElement).value.replace(
+                      /\D/g,
+                      ""
+                    );
                     setPhone(input);
                   }}
                   onKeyDown={(e) => {
                     const inputValue = phone || "";
                     if (
-                      (e.key >= "0" &&
-                        e.key <= "9" &&
-                        inputValue.length >= 10) ||
+                      (e.key >= "0" && e.key <= "9" && inputValue.length >= 10) ||
                       (e.key !== "Backspace" &&
                         e.key !== "Delete" &&
                         e.key !== "Tab" &&
@@ -179,9 +162,7 @@ const SignIn: React.FC<SignInProps> = ({
                   type={showPassword ? "text" : "password"}
                   className="signin-input"
                   value={password}
-                  onIonInput={(e) =>
-                    setPassword((e.target as unknown as HTMLInputElement).value)
-                  }
+                  onIonInput={(e) => setPassword((e.target as unknown as HTMLInputElement).value)}
                   required
                 />
                 <IonButton

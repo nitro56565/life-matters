@@ -2,10 +2,7 @@ import { Plugins, Capacitor } from "@capacitor/core";
 const { BackgroundGeolocation } = Plugins;
 
 export const startBackgroundTracking = async () => {
-  if (
-    Capacitor.getPlatform() === "android" ||
-    Capacitor.getPlatform() === "ios"
-  ) {
+  if (Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios") {
     requestPermissions();
     try {
       const watcherId = await BackgroundGeolocation.addWatcher(

@@ -53,11 +53,7 @@ const TrafficZoneCluster: React.FC<TrafficZoneClusterProps> = ({
     lng: number;
   } | null>(null);
 
-  const handleCircleClick = (zone: {
-    id: number;
-    lat: number;
-    lng: number;
-  }) => {
+  const handleCircleClick = (zone: { id: number; lat: number; lng: number }) => {
     console.log("Selected Traffic Zone:", zone);
     setSelectedZone(zone);
   };
@@ -77,11 +73,7 @@ const TrafficZoneCluster: React.FC<TrafficZoneClusterProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={initialCenter}
-          zoom={12}
-        >
+        <GoogleMap mapContainerStyle={mapContainerStyle} center={initialCenter} zoom={12}>
           {/* Render Circles for Traffic Zones */}
           {trafficZones.map((zone) => (
             <Circle
@@ -94,11 +86,7 @@ const TrafficZoneCluster: React.FC<TrafficZoneClusterProps> = ({
         </GoogleMap>
       </IonContent>
       <IonFooter>
-        <IonButton
-          expand="block"
-          onClick={handleSelect}
-          disabled={!selectedZone}
-        >
+        <IonButton expand="block" onClick={handleSelect} disabled={!selectedZone}>
           Select
         </IonButton>
         <IonButton expand="block" color="danger" onClick={onClose}>

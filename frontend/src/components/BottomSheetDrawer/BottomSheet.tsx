@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  IonCard,
-  IonCardContent,
-  IonGrid,
-  IonModal,
-  IonRow,
-} from "@ionic/react";
+import { IonCard, IonCardContent, IonGrid, IonModal, IonRow } from "@ionic/react";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import "./BottomSheet.css";
 
@@ -41,11 +35,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, close, ambulan
                 <div className="bottom-sheet-header">
                   <div className="header-icon-container">
                     <div className="header-icon">
-                      <img
-                        src="image source"
-                        className="header-icon-img"
-                        alt="Driver Image"
-                      />
+                      <img src="image source" className="header-icon-img" alt="Driver Image" />
                     </div>
                     <div className="header-details">
                       <div className="vehicle-number">{item.ambulance_number}</div>

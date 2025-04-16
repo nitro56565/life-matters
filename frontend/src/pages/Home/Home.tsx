@@ -1,11 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  IonButton,
-  IonContent,
-  IonImg,
-  IonPage,
-  useIonRouter,
-} from "@ionic/react";
+import { IonButton, IonContent, IonImg, IonPage, useIonRouter } from "@ionic/react";
 import { App } from "@capacitor/app";
 import "./Home.css";
 
@@ -44,11 +38,7 @@ const Home: React.FC = () => {
       <IonContent className="ion-padding" fullscreen>
         <div className="home-container">
           {/* Logo */}
-          <IonImg
-            className="home-logo"
-            src="/life-matters-logo-t-nnm.png"
-            alt="Logo"
-          />
+          <IonImg className="home-logo" src="/life-matters-logo-t-nnm.png" alt="Logo" />
 
           {/* Buttons */}
           <div className="home-buttons">

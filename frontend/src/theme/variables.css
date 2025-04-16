@@ -1,8 +1,6 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 
-
 body {
-    --ion-background-color: #ffffff;
-  }
-  
+  --ion-background-color: #ffffff;
+}

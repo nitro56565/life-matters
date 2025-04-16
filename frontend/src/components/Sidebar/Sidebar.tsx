@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  IonContent,
-  IonIcon,
-  IonList,
-  IonMenu,
-  IonButton,
-  useIonRouter,
-} from "@ionic/react";
+import { IonContent, IonIcon, IonList, IonMenu, IonButton, useIonRouter } from "@ionic/react";
 import { personCircle, logOut, homeOutline } from "ionicons/icons";
 import "./Sidebar.css";
 

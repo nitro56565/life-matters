@@ -35,10 +35,7 @@ const ForgotPassword: React.FC = () => {
     }
   };
 
-  const handleOtpInput = (
-    e: IonInputCustomEvent<InputInputEventDetail>,
-    index: number
-  ) => {
+  const handleOtpInput = (e: IonInputCustomEvent<InputInputEventDetail>, index: number) => {
     const value = e.detail.value || "";
 
     if (!/^\d?$/.test(value)) return; // Allow only single-digit numbers
@@ -102,9 +99,7 @@ const ForgotPassword: React.FC = () => {
                     inputMode="numeric"
                     maxlength={10}
                     value={phone}
-                    onIonInput={(e) =>
-                      setPhone(e.detail.value!.replace(/\D/g, ""))
-                    }
+                    onIonInput={(e) => setPhone(e.detail.value!.replace(/\D/g, ""))}
                     required
                   />
                 </IonItem>
@@ -140,8 +135,7 @@ const ForgotPassword: React.FC = () => {
             </IonButton>
             {isOtpRequested && (
               <div className="forgot-password-text">
-                Didn't receive any code?{" "}
-                <a href="/forgot-password">Click here</a>
+                Didn't receive any code? <a href="/forgot-password">Click here</a>
               </div>
             )}
           </form>

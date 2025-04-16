@@ -46,9 +46,7 @@ const SetNewPassword: React.FC = () => {
           <div className="password-header">
             <h1>Set New Password</h1>
           </div>
-          {successMessage && (
-            <IonText color="success">{successMessage}</IonText>
-          )}
+          {successMessage && <IonText color="success">{successMessage}</IonText>}
           <form onSubmit={handleSubmit}>
             <IonItem className="password-item">
               <IonInput
@@ -75,11 +73,7 @@ const SetNewPassword: React.FC = () => {
                 onIonChange={handleChange}
                 required
               />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={togglePasswordVisibility}
-              >
+              <button type="button" className="toggle-password" onClick={togglePasswordVisibility}>
                 {showPassword ? <FiEye /> : <FiEyeOff />}
               </button>
             </IonItem>
